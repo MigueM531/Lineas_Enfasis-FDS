@@ -3,8 +3,17 @@ from pydantic import BaseModel
 from controller.curso_controller import CursoController
 from controller.estudiante_controller import EstudianteController
 from model.Estudiante import Estudiante
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 curso_ctrl = CursoController()
 estudiante_ctrl = EstudianteController()
 
