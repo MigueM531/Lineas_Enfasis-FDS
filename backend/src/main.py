@@ -19,7 +19,7 @@ def main():
     coordinador = Coordinador(1, "Dr. Pérez")
 
     # Crear curso
-    curso = curso_ctrl.crear_curso("MAT101", "Matemáticas Avanzadas", 30, 1)
+    curso = curso_ctrl.crear_curso("MAL101", "Machine Learning", 30, 9)
     print(f"Curso creado: {curso.nombre} ({curso.estado})")
 
     # Aprobar curso
