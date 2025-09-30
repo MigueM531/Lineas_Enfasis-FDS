@@ -30,32 +30,19 @@
             gap: 15px;
         }
 
-        .bot-avatar {
-            width: 45px;
-            height: 45px;
+        .header-logo {
+            height: 60px;
             background: white;
-            border-radius: 50%;
+            padding: 8px 15px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            padding: 2px;
         }
 
-        .bot-avatar img {
-            width: 100%;
+        .header-logo img {
             height: 100%;
+            width: auto;
             object-fit: contain;
-        }
-
-        .header-info h1 {
-            font-size: 24px;
-            margin-bottom: 2px;
-        }
-
-        .header-info p {
-            font-size: 14px;
-            color: #FFCDD2;
         }
 
         .user-status {
@@ -347,12 +334,8 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="bot-avatar">
-            <img src="https://i.imgur.com/YqR8ZjH.png" alt="Universidad de Medellín">
-        </div>
-        <div class="header-info">
-            <h1>EduBot</h1>
-            <p>Asistente Inteligente para Líneas de Énfasis</p>
+        <div class="header-logo">
+            <img src="https://i.imgur.com/YqR8ZjH.png" alt="Universidad de Medellín" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 60%22%3E%3Ctext x=%2210%22 y=%2240%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23B71C1C%22%3EUniversidad de Medellín%3C/text%3E%3C/svg%3E';">
         </div>
         <div class="user-status">
             <div class="status-indicator"></div>
