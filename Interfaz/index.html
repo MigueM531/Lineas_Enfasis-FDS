@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBot - Asistente Líneas de Énfasis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEB 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background-color: #B71C1C;
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bot-avatar {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .bot-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-info h1 {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            color: #FFCDD2;
+        }
+
+        .user-status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background-color: #4CAF50;
+            border-radius: 50%;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Messages Area */
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .bot-message-avatar {
+            background: linear-gradient(135deg, #FF5252, #D32F2F);
+            color: white;
+        }
+
+        .user-message-avatar {
+            background-color: #B71C1C;
+            color: white;
+        }
+
+        .message-content {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #D32F2F, #B71C1C);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #FF5252;
+            margin-top: 8px;
+        }
+
+        .message.user .message-time {
+            color: #FFCDD2;
+        }
+
+        /* Quick Actions in Chat */
+        .quick-actions-chat {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #FFCDD2, #FF5252);
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: transform 0.2s;
+            text-align: center;
+        }
+
+        .action-button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Course Cards */
+        .course-card {
+            background: #FFF5F5;
+            border: 1px solid #FFEBEB;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .course-title {
+            color: #B71C1C;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .course-quota {
+            background-color: #D32F2F;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: auto;
+        }
+
+        .course-details {
+            color: #D32F2F;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #FF5252;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        /* Input Area */
+        .input-area {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            border: 2px solid #FFEBEB;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 14px;
+            resize: none;
+            min-height: 20px;
+            max-height: 100px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #FF5252;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #D32F2F, #B71C1C);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .send-button:hover {
+            transform: scale(1.05);
+        }
+
+        /* Suggestions */
+        .suggestions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .suggestion-chip {
+            background-color: #FFEBEB;
+            color: #B71C1C;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background-color: #FFCDD2;
+        }
+
+        /* Status Cards */
+        .status-card {
+            background: linear-gradient(135deg, #FFF5F5, #FFEBEB);
+            border-left: 4px solid #D32F2F;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .status-title {
+            color: #B71C1C;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-text {
+            color: #D32F2F;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 10px;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .quick-actions-chat {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="bot-avatar">
+            <img src="https://i.imgur.com/YqR8ZjH.png" alt="Universidad de Medellín">
+        </div>
+        <div class="header-info">
+            <h1>EduBot</h1>
+            <p>Asistente Inteligente para Líneas de Énfasis</p>
+        </div>
+        <div class="user-status">
+            <div class="status-indicator"></div>
+            <span>Juan Pérez - Estudiante</span>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container">
+        <!-- Messages Area -->
+        <div class="messages-area" id="messagesArea">
+            <!-- Bot Welcome Message -->
+            <div class="message bot">
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>¡Hola Juan! 👋 Soy EduBot, tu asistente para gestionar líneas de énfasis.</p>
+                    <p>Veo que eres estudiante de <strong>Maestría en Ingeniería de Sistemas</strong>. ¿En qué puedo ayudarte hoy?</p>
+
+                    <div class="quick-actions-chat">
+                        <button class="action-button" onclick="selectOption('buscar')">🔍 Buscar Cursos</button>
+                        <button class="action-button" onclick="selectOption('inscripciones')">📋 Mis Inscripciones</button>
+                        <button class="action-button" onclick="selectOption('cronograma')">📅 Cronograma</button>
+                        <button class="action-button" onclick="selectOption('reportes')">📊 Mi Progreso</button>
+                    </div>
+
+                    <div class="message-time">Hace un momento</div>
+                </div>
+            </div>
+
+            <!-- User Message -->
+            <div class="message user">
+                <div class="message-avatar user-message-avatar">JP</div>
+                <div class="message-content">
+                    <p>Hola! Quiero buscar cursos de Inteligencia Artificial para el próximo semestre</p>
+                    <div class="message-time">Hace un momento</div>
+                </div>
+            </div>
+
+            <!-- Bot Response with Course Results -->
+            <div class="message bot">
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>¡Perfecto! He encontrado <strong>3 cursos de Inteligencia Artificial</strong> disponibles para el semestre 2025-2:</p>
+
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">🧠 Machine Learning Avanzado</div>
+                            <div class="course-quota">8/15 cupos</div>
+                        </div>
+                        <div class="course-details">
+                            <strong>Docente:</strong> Dr. María González<br>
+                            <strong>Modalidad:</strong> Presencial<br>
+                            <strong>Horario:</strong> Martes 6:00-9:00 PM<br>
+                            <strong>Prerequisites:</strong> ✅ Cumples todos
+                        </div>
+                    </div>
+
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">🔬 Deep Learning Aplicado</div>
+                            <div class="course-quota">12/20 cupos</div>
+                        </div>
+                        <div class="course-details">
+                            <strong>Docente:</strong> PhD. Carlos Ruiz<br>
+                            <strong>Modalidad:</strong> Virtual<br>
+                            <strong>Horario:</strong> Jueves 7:00-10:00 PM<br>
+                            <strong>Prerequisites:</strong> ⚠️ Requiere "Estadística Avanzada"
+                        </div>
+                    </div>
+
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">🤖 IA para Sistemas Empresariales</div>
+                            <div class="course-quota">5/12 cupos</div>
+                        </div>
+                        <div class="course-details">
+                            <strong>Docente:</strong> Dra. Ana López<br>
+                            <strong>Modalidad:</strong> Híbrida<br>
+                            <strong>Horario:</strong> Sábados 8:00-12:00 AM<br>
+                            <strong>Prerequisites:</strong> ✅ Cumples todos
+                        </div>
+                    </div>
+
+                    <p>¿Te interesa alguno de estos cursos? Puedo ayudarte con la inscripción o darte más detalles sobre cualquiera de ellos.</p>
+
+                    <div class="suggestions">
+                        <span class="suggestion-chip" onclick="sendMessage('Inscribirme en Machine Learning')">Inscribirme en Machine Learning</span>
+                        <span class="suggestion-chip" onclick="sendMessage('Ver cronograma completo')">Ver cronograma completo</span>
+                        <span class="suggestion-chip" onclick="sendMessage('Verificar conflictos de horario')">Verificar horarios</span>
+                    </div>
+
+                    <div class="message-time">Hace un momento</div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator (hidden by default) -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div>
+                    <span style="color: #FF5252; font-size: 14px;">EduBot está escribiendo</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <textarea
+                class="input-field"
+                id="messageInput"
+                placeholder="Escribe tu mensaje aquí... (Ej: 'quiero inscribirme en un curso', 'mostrar mi progreso', 'buscar por docente')"
+                rows="1"
+            ></textarea>
+            <button class="send-button" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // Auto-resize textarea
+        const messageInput = document.getElementById('messageInput');
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+
+        // Send message on Enter
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function selectOption(option) {
+            const options = {
+                'buscar': 'Quiero buscar cursos disponibles',
+                'inscripciones': 'Mostrar mis inscripciones actuales',
+                'cronograma': 'Ver mi cronograma académico',
+                'reportes': 'Generar reporte de mi progreso académico'
+            };
+
+            sendMessage(options[option]);
+        }
+
+        function sendMessage(predefinedMessage = null) {
+            const input = document.getElementById('messageInput');
+            const message = predefinedMessage || input.value.trim();
+
+            if (!message) return;
+
+            const messagesArea = document.getElementById('messagesArea');
+
+            // Add user message
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.innerHTML = `
+                <div class="message-avatar user-message-avatar">JP</div>
+                <div class="message-content">
+                    <p>${message}</p>
+                    <div class="message-time">Ahora</div>
+                </div>
+            `;
+            messagesArea.appendChild(userMessage);
+
+            // Show typing indicator
+            const typingIndicator = document.getElementById('typingIndicator');
+            typingIndicator.style.display = 'flex';
+
+            // Clear input
+            if (!predefinedMessage) {
+                input.value = '';
+                input.style.height = 'auto';
+            }
+
+            // Scroll to bottom
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // Simulate bot response after delay
+            setTimeout(() => {
+                typingIndicator.style.display = 'none';
+
+                const botResponse = generateBotResponse(message);
+                const botMessage = document.createElement('div');
+                botMessage.className = 'message bot';
+                botMessage.innerHTML = botResponse;
+                messagesArea.appendChild(botMessage);
+
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }, 2000);
+        }
+
+        function generateBotResponse(userMessage) {
+            // Simulated intelligent responses based on user input
+            const message = userMessage.toLowerCase();
+
+            if (message.includes('inscrib') || message.includes('machine learning')) {
+                return `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>¡Excelente elección! 🎉 Te voy a inscribir en <strong>Machine Learning Avanzado</strong>.</p>
+
+                        <div class="status-card">
+                            <div class="status-title">✅ Verificaciones Completadas:</div>
+                            <div class="status-text">
+                                • Prerequisites cumplidos<br>
+                                • Sin conflictos de horario<br>
+                                • Cupos disponibles (7/15 restantes)
+                            </div>
+                        </div>
+
+                        <p><strong>📋 Inscripción registrada exitosamente:</strong><br>
+                        • Curso: Machine Learning Avanzado<br>
+                        • Código: IA-501<br>
+                        • Fecha de inicio: 15 de Agosto, 2025<br>
+                        • Se ha enviado confirmación a tu email</p>
+
+                        <div class="quick-actions-chat">
+                            <button class="action-button" onclick="sendMessage('Ver cronograma del curso')">📅 Ver Cronograma</button>
+                            <button class="action-button" onclick="sendMessage('Descargar comprobante')">📄 Comprobante</button>
+                        </div>
+
+                        <div class="message-time">Ahora</div>
+                    </div>
+                `;
+            }
+
+            if (message.includes('progreso') || message.includes('reporte')) {
+                return `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>📊 <strong>Reporte de Progreso Académico - Juan Pérez</strong></p>
+
+                        <div class="status-card">
+                            <div class="status-title">🎯 Estado General</div>
+                            <div class="status-text">
+                                Créditos completados: 24/36<br>
+                                Promedio actual: 4.2/5.0<br>
+                                Cursos pendientes: 4<br>
+                                Estado: En progreso regular
+                            </div>
+                        </div>
+
+                        <p>Tu progreso está siendo excelente. ¿Necesitas ayuda planificando los próximos cursos?</p>
+
+                        <div class="message-time">Ahora</div>
+                    </div>
+                `;
+            }
+
+            // Default response
+            return `
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>Entiendo tu consulta. ¿Podrías ser más específico sobre lo que necesitas? Puedo ayudarte con:</p>
+                    <p>• 🔍 Búsqueda de cursos<br>
+                    • 📋 Inscripciones<br>
+                    • 📅 Cronogramas<br>
+                    • 📊 Reportes de progreso</p>
+                    <div class="message-time">Ahora</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
