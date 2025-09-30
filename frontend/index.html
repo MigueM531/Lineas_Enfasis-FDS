@@ -365,71 +365,6 @@
                 </div>
             </div>
 
-            <!-- User Message -->
-            <div class="message user">
-                <div class="message-avatar user-message-avatar">JP</div>
-                <div class="message-content">
-                    <p>Hola! Quiero buscar cursos de Inteligencia Artificial para el próximo semestre</p>
-                    <div class="message-time">Hace un momento</div>
-                </div>
-            </div>
-
-            <!-- Bot Response with Course Results -->
-            <div class="message bot">
-                <div class="message-avatar bot-message-avatar">🤖</div>
-                <div class="message-content">
-                    <p>¡Perfecto! He encontrado <strong>3 cursos de Inteligencia Artificial</strong> disponibles para el semestre 2025-2:</p>
-
-                    <div class="course-card">
-                        <div class="course-header">
-                            <div class="course-title">🧠 Machine Learning Avanzado</div>
-                            <div class="course-quota">8/15 cupos</div>
-                        </div>
-                        <div class="course-details">
-                            <strong>Docente:</strong> Dr. María González<br>
-                            <strong>Modalidad:</strong> Presencial<br>
-                            <strong>Horario:</strong> Martes 6:00-9:00 PM<br>
-                            <strong>Prerequisites:</strong> ✅ Cumples todos
-                        </div>
-                    </div>
-
-                    <div class="course-card">
-                        <div class="course-header">
-                            <div class="course-title">🔬 Deep Learning Aplicado</div>
-                            <div class="course-quota">12/20 cupos</div>
-                        </div>
-                        <div class="course-details">
-                            <strong>Docente:</strong> PhD. Carlos Ruiz<br>
-                            <strong>Modalidad:</strong> Virtual<br>
-                            <strong>Horario:</strong> Jueves 7:00-10:00 PM<br>
-                            <strong>Prerequisites:</strong> ⚠️ Requiere "Estadística Avanzada"
-                        </div>
-                    </div>
-
-                    <div class="course-card">
-                        <div class="course-header">
-                            <div class="course-title">🤖 IA para Sistemas Empresariales</div>
-                            <div class="course-quota">5/12 cupos</div>
-                        </div>
-                        <div class="course-details">
-                            <strong>Docente:</strong> Dra. Ana López<br>
-                            <strong>Modalidad:</strong> Híbrida<br>
-                            <strong>Horario:</strong> Sábados 8:00-12:00 AM<br>
-                            <strong>Prerequisites:</strong> ✅ Cumples todos
-                        </div>
-                    </div>
-
-                    <p>¿Te interesa alguno de estos cursos? Puedo ayudarte con la inscripción o darte más detalles sobre cualquiera de ellos.</p>
-
-                    <div class="suggestions">
-                        <span class="suggestion-chip" onclick="sendMessage('Inscribirme en Machine Learning')">Inscribirme en Machine Learning</span>
-                        <span class="suggestion-chip" onclick="sendMessage('Ver cronograma completo')">Ver cronograma completo</span>
-                        <span class="suggestion-chip" onclick="sendMessage('Verificar conflictos de horario')">Verificar horarios</span>
-                    </div>
-
-                    <div class="message-time">Hace un momento</div>
-                </div>
-            </div>
 
             <!-- Typing Indicator (hidden by default) -->
             <div class="typing-indicator" id="typingIndicator" style="display: none;">
@@ -487,48 +422,115 @@
         function sendMessage(predefinedMessage = null) {
             const input = document.getElementById('messageInput');
             const message = predefinedMessage || input.value.trim();
-
             if (!message) return;
-
+        
             const messagesArea = document.getElementById('messagesArea');
-
-            // Add user message
+        
+            // Mostrar mensaje del usuario
             const userMessage = document.createElement('div');
             userMessage.className = 'message user';
             userMessage.innerHTML = `
                 <div class="message-avatar user-message-avatar">JP</div>
-                <div class="message-content">
-                    <p>${message}</p>
-                    <div class="message-time">Ahora</div>
-                </div>
+                <div class="message-content"><p>${message}</p><div class="message-time">Ahora</div></div>
             `;
             messagesArea.appendChild(userMessage);
-
-            // Show typing indicator
+        
+            // Indicador de "escribiendo..."
             const typingIndicator = document.getElementById('typingIndicator');
             typingIndicator.style.display = 'flex';
-
-            // Clear input
+        
             if (!predefinedMessage) {
                 input.value = '';
                 input.style.height = 'auto';
             }
-
-            // Scroll to bottom
             messagesArea.scrollTop = messagesArea.scrollHeight;
-
-            // Simulate bot response after delay
-            setTimeout(() => {
+        
+            // 🚀 Llamar al backend real
+            fetch("http://localhost:8000/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text: message })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                return res.json();
+            })
+            .then(data => {
                 typingIndicator.style.display = 'none';
-
-                const botResponse = generateBotResponse(message);
+            
+                let botResponseHTML = "";
+            
+                // Caso: listado de cursos
+                if (data.type === "cursos") {
+                    botResponseHTML = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>He encontrado ${data.data.length} cursos disponibles:</p>
+                    `;
+                    data.data.forEach(c => {
+                        botResponseHTML += `
+                            <div class="course-card">
+                                <div class="course-header">
+                                    <div class="course-title">${c.nombre}</div>
+                                    <div class="course-quota">${c.cupo} cupos</div>
+                                </div>
+                                <div class="course-details">
+                                    Código: ${c.codigo}<br>
+                                    Semestre: ${c.semestre}<br>
+                                    Estado: ${c.estado}
+                                </div>
+                            </div>`;
+                    });
+                    botResponseHTML += `</div>`;
+                }
+            
+                // Caso: inscripción
+                else if (data.type === "inscripcion") {
+                    botResponseHTML = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content"><p>${data.resultado}</p></div>`;
+                }
+            
+                // Caso: reporte académico
+                else if (data.type === "reporte") {
+                    botResponseHTML = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>📊 <strong>Reporte Académico</strong></p>
+                            Créditos: ${data.data.creditos_completados}/${data.data.creditos_totales}<br>
+                            Promedio: ${data.data.promedio}<br>
+                            Pendientes: ${data.data.pendientes}
+                        </div>`;
+                }
+            
+                // Caso: respuesta por defecto
+                else {
+                    botResponseHTML = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content"><p>${data.message}</p></div>`;
+                }
+            
+                // Agregar respuesta del bot al chat
                 const botMessage = document.createElement('div');
                 botMessage.className = 'message bot';
-                botMessage.innerHTML = botResponse;
+                botMessage.innerHTML = botResponseHTML;
                 messagesArea.appendChild(botMessage);
-
                 messagesArea.scrollTop = messagesArea.scrollHeight;
-            }, 2000);
+            })
+            .catch(err => {
+                typingIndicator.style.display = 'none';
+                console.error("❌ Error en fetch:", err);
+            
+                // Mostrar error en el chat
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message bot';
+                errorMessage.innerHTML = `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content"><p>⚠️ No se pudo conectar con el servidor.</p></div>`;
+                messagesArea.appendChild(errorMessage);
+            });
         }
 
         function generateBotResponse(userMessage) {
