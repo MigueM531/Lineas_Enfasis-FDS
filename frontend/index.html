@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduBot - Asistente Líneas de Énfasis</title>
+    <title>EduBot - Sistema de Líneas de Énfasis</title>
     <style>
         * {
             margin: 0;
@@ -59,12 +59,20 @@
             border-radius: 50%;
         }
 
+        .role-badge {
+            background-color: #D32F2F;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
         /* Chat Container */
         .chat-container {
             flex: 1;
             display: flex;
             flex-direction: column;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             width: 100%;
             padding: 20px;
@@ -85,6 +93,18 @@
             display: flex;
             gap: 12px;
             max-width: 85%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.user {
@@ -136,7 +156,7 @@
             color: #FFCDD2;
         }
 
-        /* Quick Actions in Chat */
+        /* Quick Actions */
         .quick-actions-chat {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -152,12 +172,18 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 13px;
-            transition: transform 0.2s;
+            transition: all 0.3s;
             text-align: center;
         }
 
         .action-button:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* Course Cards */
@@ -167,11 +193,17 @@
             border-radius: 10px;
             padding: 15px;
             margin: 10px 0;
+            transition: all 0.3s;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
 
         .course-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
@@ -188,13 +220,163 @@
             padding: 4px 8px;
             border-radius: 12px;
             font-size: 12px;
-            margin-left: auto;
+        }
+
+        .course-quota.limited {
+            background-color: #FF9800;
+        }
+
+        .course-quota.full {
+            background-color: #757575;
         }
 
         .course-details {
             color: #D32F2F;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.6;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .course-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .course-btn.primary {
+            background-color: #D32F2F;
+            color: white;
+        }
+
+        .course-btn.secondary {
+            background-color: #FFEBEB;
+            color: #B71C1C;
+        }
+
+        .course-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .course-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #FFF5F5;
+            border: 2px solid #FFEBEB;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .filter-title {
+            color: #B71C1C;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .filter-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .filter-chip {
+            background-color: white;
+            border: 2px solid #FFEBEB;
+            color: #D32F2F;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .filter-chip:hover, .filter-chip.active {
+            background-color: #D32F2F;
+            color: white;
+            border-color: #D32F2F;
+        }
+
+        /* Status Cards */
+        .status-card {
+            background: linear-gradient(135deg, #FFF5F5, #FFEBEB);
+            border-left: 4px solid #D32F2F;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .status-title {
+            color: #B71C1C;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .status-text {
+            color: #D32F2F;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background-color: #FFEBEB;
+            border-radius: 10px;
+            height: 24px;
+            margin: 10px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #D32F2F, #FF5252);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin: 12px 0;
+        }
+
+        .form-label {
+            display: block;
+            color: #B71C1C;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #FFEBEB;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #FF5252;
         }
 
         /* Typing Indicator */
@@ -270,7 +452,7 @@
         }
 
         .send-button:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         /* Suggestions */
@@ -288,31 +470,53 @@
             border-radius: 15px;
             font-size: 12px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
         }
 
         .suggestion-chip:hover {
             background-color: #FFCDD2;
+            transform: translateY(-1px);
         }
 
-        /* Status Cards */
-        .status-card {
-            background: linear-gradient(135deg, #FFF5F5, #FFEBEB);
-            border-left: 4px solid #D32F2F;
-            padding: 15px;
+        /* Error/Success Messages */
+        .alert {
+            padding: 12px;
             border-radius: 8px;
             margin: 10px 0;
         }
 
-        .status-title {
-            color: #B71C1C;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .alert.success {
+            background-color: #C8E6C9;
+            color: #2E7D32;
+            border-left: 4px solid #4CAF50;
         }
 
-        .status-text {
-            color: #D32F2F;
-            font-size: 14px;
+        .alert.error {
+            background-color: #FFCDD2;
+            color: #C62828;
+            border-left: 4px solid #F44336;
+        }
+
+        .alert.warning {
+            background-color: #FFE0B2;
+            color: #E65100;
+            border-left: 4px solid #FF9800;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #FFEBEB;
+            border-top: 3px solid #D32F2F;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Responsive */
@@ -325,8 +529,16 @@
                 max-width: 95%;
             }
 
-            .quick-actions-chat {
+            .quick-actions-chat, .filter-options {
                 grid-template-columns: 1fr;
+            }
+
+            .header-logo {
+                height: 45px;
+            }
+
+            .user-status span {
+                display: none;
             }
         }
     </style>
@@ -339,7 +551,8 @@
         </div>
         <div class="user-status">
             <div class="status-indicator"></div>
-            <span>Juan Pérez - Estudiante</span>
+            <span id="userName">Cargando...</span>
+            <span class="role-badge" id="userRole">Estudiante</span>
         </div>
     </div>
 
@@ -351,26 +564,25 @@
             <div class="message bot">
                 <div class="message-avatar bot-message-avatar">🤖</div>
                 <div class="message-content">
-                    <p>¡Hola Juan! 👋 Soy EduBot, tu asistente para gestionar líneas de énfasis.</p>
-                    <p>Veo que eres estudiante de <strong>Maestría en Ingeniería de Sistemas</strong>. ¿En qué puedo ayudarte hoy?</p>
+                    <p>¡Hola! 👋 Soy EduBot, tu asistente para gestionar líneas de énfasis.</p>
+                    <p>Estoy conectado a la base de datos en tiempo real. ¿En qué puedo ayudarte hoy?</p>
 
-                    <div class="quick-actions-chat">
-                        <button class="action-button" onclick="selectOption('buscar')">🔍 Buscar Cursos</button>
-                        <button class="action-button" onclick="selectOption('inscripciones')">📋 Mis Inscripciones</button>
-                        <button class="action-button" onclick="selectOption('cronograma')">📅 Cronograma</button>
-                        <button class="action-button" onclick="selectOption('reportes')">📊 Mi Progreso</button>
+                    <div class="quick-actions-chat" id="mainActions">
+                        <button class="action-button" onclick="buscarCursos()">🔍 Buscar Cursos</button>
+                        <button class="action-button" onclick="showMisInscripciones()">📋 Mis Inscripciones</button>
+                        <button class="action-button" onclick="filtrarPorSemestre()">🗓️ Filtrar Semestre</button>
+                        <button class="action-button" onclick="showReporteProgreso()">📊 Mi Progreso</button>
                     </div>
 
                     <div class="message-time">Hace un momento</div>
                 </div>
             </div>
 
-
-            <!-- Typing Indicator (hidden by default) -->
+            <!-- Typing Indicator -->
             <div class="typing-indicator" id="typingIndicator" style="display: none;">
                 <div class="message-avatar bot-message-avatar">🤖</div>
                 <div>
-                    <span style="color: #FF5252; font-size: 14px;">EduBot está escribiendo</span>
+                    <span style="color: #FF5252; font-size: 14px;">EduBot está procesando...</span>
                     <div class="typing-dots">
                         <div class="typing-dot"></div>
                         <div class="typing-dot"></div>
@@ -385,7 +597,7 @@
             <textarea
                 class="input-field"
                 id="messageInput"
-                placeholder="Escribe tu mensaje aquí... (Ej: 'quiero inscribirme en un curso', 'mostrar mi progreso', 'buscar por docente')"
+                placeholder="Escribe tu mensaje... (Ej: 'buscar cursos', 'inscribirme en MAT101', 'ver mi progreso')"
                 rows="1"
             ></textarea>
             <button class="send-button" onclick="sendMessage()">➤</button>
@@ -393,216 +605,480 @@
     </div>
 
     <script>
-        // Auto-resize textarea
-        const messageInput = document.getElementById('messageInput');
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
+        // Configuración de la API
+        const API_URL = 'http://localhost:8000'; // Cambiar a tu URL de producción cuando despliegues
+        const ESTUDIANTE_ID = 1; // ID del estudiante actual (debería venir de autenticación)
+
+        // Variables globales
+        let currentUser = null;
+        let cursosCache = [];
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('messageInput');
+
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+
+            // Send on Enter
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Cargar información del usuario
+            loadUserInfo();
         });
 
-        // Send message on Enter
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
+        // ==================== API CALLS ====================
+
+        async function loadUserInfo() {
+            try {
+                // Simular carga de usuario (en producción vendría del backend)
+                currentUser = {
+                    id: ESTUDIANTE_ID,
+                    nombre: 'Ana López',
+                    programa: 'Ingeniería de Sistemas',
+                    rol: 'estudiante'
+                };
+
+                document.getElementById('userName').textContent = currentUser.nombre;
+            } catch (error) {
+                console.error('Error cargando usuario:', error);
+                document.getElementById('userName').textContent = 'Usuario';
             }
-        });
-
-        function selectOption(option) {
-            const options = {
-                'buscar': 'Quiero buscar cursos disponibles',
-                'inscripciones': 'Mostrar mis inscripciones actuales',
-                'cronograma': 'Ver mi cronograma académico',
-                'reportes': 'Generar reporte de mi progreso académico'
-            };
-
-            sendMessage(options[option]);
         }
 
-        function sendMessage(predefinedMessage = null) {
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(`${API_URL}${endpoint}`, options);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                showError('Error de conexión con el servidor. Por favor intenta nuevamente.');
+                return null;
+            }
+        }
+
+        async function chatAPI(text) {
+            return await apiCall('/chat', 'POST', {
+                text: text,
+                estudiante_id: ESTUDIANTE_ID
+            });
+        }
+
+        // ==================== FUNCIONALIDADES PRINCIPALES ====================
+
+        // HU1 & HU2: Buscar y listar cursos
+        async function buscarCursos(semestre = null) {
+            addUserMessage(semestre ? `Buscar cursos del semestre ${semestre}` : 'Quiero buscar cursos disponibles');
+            showTyping();
+
+            const response = await chatAPI('buscar cursos');
+            hideTyping();
+
+            if (!response || response.type === 'error') {
+                showError(response?.message || 'No se pudieron cargar los cursos');
+                return;
+            }
+
+            if (response.type === 'cursos') {
+                cursosCache = response.data;
+
+                let cursos = response.data;
+                if (semestre) {
+                    cursos = cursos.filter(c => c.semestre === semestre);
+                }
+
+                if (cursos.length === 0) {
+                    let html = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>⚠️ No se encontraron cursos ${semestre ? `para el semestre ${semestre}` : 'disponibles'}</p>
+                            <div class="message-time">Ahora</div>
+                        </div>
+                    `;
+                    addBotMessage(html);
+                    return;
+                }
+
+                mostrarCursosDesdeAPI(cursos);
+            }
+        }
+
+        function mostrarCursosDesdeAPI(cursos) {
+            let html = `
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>📚 <strong>Cursos Disponibles</strong></p>
+                    <p>He encontrado <strong>${cursos.length} cursos aprobados</strong> en la base de datos:</p>
+            `;
+
+            cursos.forEach(curso => {
+                let quotaClass = '';
+                if (curso.cupo === 0) quotaClass = 'full';
+                else if (curso.cupo <= 5) quotaClass = 'limited';
+
+                html += `
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-title">${curso.nombre}</div>
+                            <div class="course-quota ${quotaClass}">${curso.cupo} cupos</div>
+                        </div>
+                        <div class="course-details">
+                            <strong>Código:</strong> ${curso.codigo}<br>
+                            <strong>Semestre:</strong> ${curso.semestre}<br>
+                            <strong>Estado:</strong> ${curso.estado === 'aprobado' ? '✅ Aprobado' : '⏳ Pendiente'}
+                        </div>
+                        <div class="course-actions">
+                            ${curso.cupo > 0 && curso.estado === 'aprobado' ?
+                                `<button class="course-btn primary" onclick="inscribirCurso('${curso.codigo}', '${curso.nombre}')">📝 Inscribirme</button>` :
+                                `<button class="course-btn secondary" disabled>❌ No disponible</button>`}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    <div class="suggestions">
+                        <span class="suggestion-chip" onclick="filtrarPorSemestre()">🗓️ Filtrar por semestre</span>
+                        <span class="suggestion-chip" onclick="showMisInscripciones()">📋 Mis inscripciones</span>
+                    </div>
+                    <div class="message-time">Ahora</div>
+                </div>
+            `;
+
+            addBotMessage(html);
+        }
+
+        // HU2: Filtrar por semestre
+        function filtrarPorSemestre() {
+            addUserMessage('Quiero filtrar los cursos por semestre');
+            showTyping();
+
+            setTimeout(() => {
+                hideTyping();
+
+                // Obtener semestres únicos de los cursos en cache
+                const semestres = [...new Set(cursosCache.map(c => c.semestre))].sort();
+
+                if (semestres.length === 0) {
+                    buscarCursos(); // Si no hay cache, buscar primero
+                    return;
+                }
+
+                let html = `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>🗓️ <strong>Filtrar por Semestre</strong></p>
+                        <div class="filter-section">
+                            <div class="filter-title">Selecciona el semestre:</div>
+                            <div class="filter-options">
+                `;
+
+                semestres.forEach(sem => {
+                    const count = cursosCache.filter(c => c.semestre === sem).length;
+                    html += `<div class="filter-chip" onclick="buscarCursos(${sem})">Semestre ${sem} (${count} cursos)</div>`;
+                });
+
+                html += `
+                            </div>
+                        </div>
+                        <div class="message-time">Ahora</div>
+                    </div>
+                `;
+
+                addBotMessage(html);
+            }, 1000);
+        }
+
+        // HU5: Inscribir en curso
+        async function inscribirCurso(codigo, nombre) {
+            addUserMessage(`Quiero inscribirme en el curso ${nombre} (${codigo})`);
+            showTyping();
+
+            const response = await chatAPI(`inscribir en ${codigo}`);
+            hideTyping();
+
+            if (!response) return;
+
+            if (response.type === 'inscripcion') {
+                let html = `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content">
+                `;
+
+                if (response.resultado.includes('éxito') || response.resultado.includes('Inscripción realizada')) {
+                    html += `
+                        <div class="alert success">
+                            ✅ ${response.resultado}
+                        </div>
+                        <p>🎉 <strong>¡Inscripción Exitosa!</strong></p>
+                        <div class="status-card">
+                            <div class="status-title">📋 Detalles de tu Inscripción:</div>
+                            <div class="status-text">
+                                <strong>Curso:</strong> ${nombre}<br>
+                                <strong>Código:</strong> ${codigo}<br>
+                                <strong>Fecha:</strong> ${new Date().toLocaleDateString('es-CO')}<br>
+                                <strong>Estado:</strong> Confirmada ✅
+                            </div>
+                        </div>
+                        <div class="quick-actions-chat">
+                            <button class="action-button" onclick="showMisInscripciones()">📋 Ver mis inscripciones</button>
+                            <button class="action-button" onclick="buscarCursos()">🔍 Buscar más cursos</button>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="alert error">
+                            ❌ ${response.resultado}
+                        </div>
+                        <p>No se pudo completar la inscripción. Por favor verifica los requisitos.</p>
+                    `;
+                }
+
+                html += `
+                        <div class="message-time">Ahora</div>
+                    </div>
+                `;
+
+                addBotMessage(html);
+            }
+        }
+
+        // HU2: Mis inscripciones
+        async function showMisInscripciones() {
+            addUserMessage('Mostrar mis inscripciones actuales');
+            showTyping();
+
+            // Simulación - en producción sería: await apiCall(`/api/estudiante/${ESTUDIANTE_ID}/inscripciones`)
+            setTimeout(() => {
+                hideTyping();
+
+                let html = `
+                    <div class="message-avatar bot-message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>📋 <strong>Mis Inscripciones</strong></p>
+                        <p>Consultando tus inscripciones desde la base de datos...</p>
+
+                        <div class="status-card">
+                            <div class="status-title">Estado Actual</div>
+                            <div class="status-text">
+                                Se consultaron tus inscripciones activas en la base de datos NeonDB.
+                            </div>
+                        </div>
+
+                        <div class="suggestions">
+                            <span class="suggestion-chip" onclick="buscarCursos()">🔍 Buscar más cursos</span>
+                            <span class="suggestion-chip" onclick="showReporteProgreso()">📊 Ver mi progreso</span>
+                        </div>
+
+                        <div class="message-time">Ahora</div>
+                    </div>
+                `;
+
+                addBotMessage(html);
+            }, 1500);
+        }
+
+        // HU7: Reporte de progreso
+        async function showReporteProgreso() {
+            addUserMessage('Quiero ver mi reporte de progreso académico');
+            showTyping();
+
+            const response = await chatAPI('reporte de progreso');
+            hideTyping();
+
+            if (!response || response.type !== 'reporte') {
+                showError('No se pudo cargar el reporte');
+                return;
+            }
+
+            const data = response.data;
+            const porcentaje = Math.round((data.creditos_completados / data.creditos_totales) * 100);
+
+            let html = `
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <p>📊 <strong>Reporte de Progreso Académico</strong></p>
+                    <p><strong>Estudiante:</strong> ${currentUser.nombre}</p>
+                    <p><strong>Programa:</strong> ${currentUser.programa}</p>
+
+                    <div class="status-card">
+                        <div class="status-title">🎯 Progreso General</div>
+                        <div class="status-text">
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: ${porcentaje}%">${porcentaje}%</div>
+                            </div>
+                            <strong>Créditos completados:</strong> ${data.creditos_completados}/${data.creditos_totales}<br>
+                            <strong>Promedio acumulado:</strong> ${data.promedio}/5.0<br>
+                            <strong>Cursos pendientes:</strong> ${data.pendientes}<br>
+                            <strong>Estado:</strong> En progreso regular ✅
+                        </div>
+                    </div>
+
+                    <p>🎓 <strong>Proyección:</strong> Con tu ritmo actual, completarías el programa en ${Math.ceil(data.pendientes / 2)} semestres más.</p>
+
+                    <div class="quick-actions-chat">
+                        <button class="action-button" onclick="buscarCursos()">🔍 Buscar nuevos cursos</button>
+                        <button class="action-button" onclick="showMisInscripciones()">📋 Ver inscripciones</button>
+                    </div>
+
+                    <div class="message-time">Ahora</div>
+                </div>
+            `;
+
+            addBotMessage(html);
+        }
+
+        // ==================== FUNCIONES DE MENSAJERÍA ====================
+
+        async function sendMessage(predefinedMessage = null) {
             const input = document.getElementById('messageInput');
             const message = predefinedMessage || input.value.trim();
+
             if (!message) return;
-        
-            const messagesArea = document.getElementById('messagesArea');
-        
-            // Mostrar mensaje del usuario
-            const userMessage = document.createElement('div');
-            userMessage.className = 'message user';
-            userMessage.innerHTML = `
-                <div class="message-avatar user-message-avatar">JP</div>
-                <div class="message-content"><p>${message}</p><div class="message-time">Ahora</div></div>
-            `;
-            messagesArea.appendChild(userMessage);
-        
-            // Indicador de "escribiendo..."
-            const typingIndicator = document.getElementById('typingIndicator');
-            typingIndicator.style.display = 'flex';
-        
+
+            addUserMessage(message);
+
             if (!predefinedMessage) {
                 input.value = '';
                 input.style.height = 'auto';
             }
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        
-            // 🚀 Llamar al backend real
-            fetch("http://localhost:8000/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ text: message })
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("Error en la respuesta del servidor");
-                return res.json();
-            })
-            .then(data => {
-                typingIndicator.style.display = 'none';
-            
-                let botResponseHTML = "";
-            
-                // Caso: listado de cursos
-                if (data.type === "cursos") {
-                    botResponseHTML = `
-                        <div class="message-avatar bot-message-avatar">🤖</div>
-                        <div class="message-content">
-                            <p>He encontrado ${data.data.length} cursos disponibles:</p>
-                    `;
-                    data.data.forEach(c => {
-                        botResponseHTML += `
-                            <div class="course-card">
-                                <div class="course-header">
-                                    <div class="course-title">${c.nombre}</div>
-                                    <div class="course-quota">${c.cupo} cupos</div>
-                                </div>
-                                <div class="course-details">
-                                    Código: ${c.codigo}<br>
-                                    Semestre: ${c.semestre}<br>
-                                    Estado: ${c.estado}
-                                </div>
-                            </div>`;
-                    });
-                    botResponseHTML += `</div>`;
-                }
-            
-                // Caso: inscripción
-                else if (data.type === "inscripcion") {
-                    botResponseHTML = `
-                        <div class="message-avatar bot-message-avatar">🤖</div>
-                        <div class="message-content"><p>${data.resultado}</p></div>`;
-                }
-            
-                // Caso: reporte académico
-                else if (data.type === "reporte") {
-                    botResponseHTML = `
-                        <div class="message-avatar bot-message-avatar">🤖</div>
-                        <div class="message-content">
-                            <p>📊 <strong>Reporte Académico</strong></p>
-                            Créditos: ${data.data.creditos_completados}/${data.data.creditos_totales}<br>
-                            Promedio: ${data.data.promedio}<br>
-                            Pendientes: ${data.data.pendientes}
-                        </div>`;
-                }
-            
-                // Caso: respuesta por defecto
-                else {
-                    botResponseHTML = `
-                        <div class="message-avatar bot-message-avatar">🤖</div>
-                        <div class="message-content"><p>${data.message}</p></div>`;
-                }
-            
-                // Agregar respuesta del bot al chat
-                const botMessage = document.createElement('div');
-                botMessage.className = 'message bot';
-                botMessage.innerHTML = botResponseHTML;
-                messagesArea.appendChild(botMessage);
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-            })
-            .catch(err => {
-                typingIndicator.style.display = 'none';
-                console.error("❌ Error en fetch:", err);
-            
-                // Mostrar error en el chat
-                const errorMessage = document.createElement('div');
-                errorMessage.className = 'message bot';
-                errorMessage.innerHTML = `
-                    <div class="message-avatar bot-message-avatar">🤖</div>
-                    <div class="message-content"><p>⚠️ No se pudo conectar con el servidor.</p></div>`;
-                messagesArea.appendChild(errorMessage);
-            });
+
+            // Procesar mensaje
+            await procesarMensaje(message);
         }
 
-        function generateBotResponse(userMessage) {
-            // Simulated intelligent responses based on user input
-            const message = userMessage.toLowerCase();
+        async function procesarMensaje(mensaje) {
+            const msg = mensaje.toLowerCase();
 
-            if (message.includes('inscrib') || message.includes('machine learning')) {
-                return `
-                    <div class="message-avatar bot-message-avatar">🤖</div>
-                    <div class="message-content">
-                        <p>¡Excelente elección! 🎉 Te voy a inscribir en <strong>Machine Learning Avanzado</strong>.</p>
+            showTyping();
 
-                        <div class="status-card">
-                            <div class="status-title">✅ Verificaciones Completadas:</div>
-                            <div class="status-text">
-                                • Prerequisites cumplidos<br>
-                                • Sin conflictos de horario<br>
-                                • Cupos disponibles (7/15 restantes)
+            // Llamar a la API de chat
+            const response = await chatAPI(mensaje);
+
+            hideTyping();
+
+            if (!response) return;
+
+            // Procesar respuesta según el tipo
+            switch(response.type) {
+                case 'cursos':
+                    cursosCache = response.data;
+                    mostrarCursosDesdeAPI(response.data);
+                    break;
+
+                case 'inscripcion':
+                    // Ya manejado en inscribirCurso
+                    break;
+
+                case 'reporte':
+                    // Ya manejado en showReporteProgreso
+                    break;
+
+                case 'error':
+                    showError(response.message);
+                    break;
+
+                case 'default':
+                default:
+                    let html = `
+                        <div class="message-avatar bot-message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>${response.message || 'Entiendo tu consulta. ¿Podrías ser más específico?'}</p>
+                            <p>Puedo ayudarte con:</p>
+                            <p>• 🔍 Buscar cursos disponibles<br>
+                            • 📋 Ver tus inscripciones<br>
+                            • 🗓️ Filtrar por semestre<br>
+                            • 📊 Ver tu progreso académico</p>
+
+                            <div class="quick-actions-chat">
+                                <button class="action-button" onclick="buscarCursos()">🔍 Buscar Cursos</button>
+                                <button class="action-button" onclick="showMisInscripciones()">📋 Mis Inscripciones</button>
                             </div>
+
+                            <div class="message-time">Ahora</div>
                         </div>
-
-                        <p><strong>📋 Inscripción registrada exitosamente:</strong><br>
-                        • Curso: Machine Learning Avanzado<br>
-                        • Código: IA-501<br>
-                        • Fecha de inicio: 15 de Agosto, 2025<br>
-                        • Se ha enviado confirmación a tu email</p>
-
-                        <div class="quick-actions-chat">
-                            <button class="action-button" onclick="sendMessage('Ver cronograma del curso')">📅 Ver Cronograma</button>
-                            <button class="action-button" onclick="sendMessage('Descargar comprobante')">📄 Comprobante</button>
-                        </div>
-
-                        <div class="message-time">Ahora</div>
-                    </div>
-                `;
+                    `;
+                    addBotMessage(html);
+                    break;
             }
+        }
 
-            if (message.includes('progreso') || message.includes('reporte')) {
-                return `
-                    <div class="message-avatar bot-message-avatar">🤖</div>
-                    <div class="message-content">
-                        <p>📊 <strong>Reporte de Progreso Académico - Juan Pérez</strong></p>
+        function addUserMessage(text) {
+            const messagesArea = document.getElementById('messagesArea');
+            const typingIndicator = document.getElementById('typingIndicator');
 
-                        <div class="status-card">
-                            <div class="status-title">🎯 Estado General</div>
-                            <div class="status-text">
-                                Créditos completados: 24/36<br>
-                                Promedio actual: 4.2/5.0<br>
-                                Cursos pendientes: 4<br>
-                                Estado: En progreso regular
-                            </div>
-                        </div>
-
-                        <p>Tu progreso está siendo excelente. ¿Necesitas ayuda planificando los próximos cursos?</p>
-
-                        <div class="message-time">Ahora</div>
-                    </div>
-                `;
-            }
-
-            // Default response
-            return `
-                <div class="message-avatar bot-message-avatar">🤖</div>
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user';
+            userMessage.innerHTML = `
+                <div class="message-avatar user-message-avatar">${currentUser ? currentUser.nombre.split(' ').map(n => n[0]).join('') : 'U'}</div>
                 <div class="message-content">
-                    <p>Entiendo tu consulta. ¿Podrías ser más específico sobre lo que necesitas? Puedo ayudarte con:</p>
-                    <p>• 🔍 Búsqueda de cursos<br>
-                    • 📋 Inscripciones<br>
-                    • 📅 Cronogramas<br>
-                    • 📊 Reportes de progreso</p>
+                    <p>${text}</p>
                     <div class="message-time">Ahora</div>
                 </div>
             `;
+
+            messagesArea.insertBefore(userMessage, typingIndicator);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function addBotMessage(html) {
+            const messagesArea = document.getElementById('messagesArea');
+            const typingIndicator = document.getElementById('typingIndicator');
+
+            const botMessage = document.createElement('div');
+            botMessage.className = 'message bot';
+            botMessage.innerHTML = html;
+
+            messagesArea.insertBefore(botMessage, typingIndicator);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function showTyping() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+            const messagesArea = document.getElementById('messagesArea');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function showError(message) {
+            let html = `
+                <div class="message-avatar bot-message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="alert error">
+                        ❌ ${message}
+                    </div>
+                    <p>Por favor intenta nuevamente o contacta con soporte técnico.</p>
+                    <div class="message-time">Ahora</div>
+                </div>
+            `;
+            addBotMessage(html);
         }
     </script>
 </body>
