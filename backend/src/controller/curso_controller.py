@@ -1,8 +1,8 @@
 import sys
-sys.path.append("src")
 
-from backend.src.database import get_connection
-from backend.src.model.Curso import Curso
+from database import get_connection
+from model.Curso import Curso
+
 
 class CursoController:
     def crear_curso(self, codigo, nombre, cupo, semestre):
