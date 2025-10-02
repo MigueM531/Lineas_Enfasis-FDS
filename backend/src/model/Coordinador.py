@@ -1,15 +1,18 @@
 class Coordinador:
-    def __init__(self, id_coordinador, nombre):
-        self.id_coordinador = id_coordinador
+    def __init__(self, id: int, nombre: str, contrasena: str):
+        self.id = id
         self.nombre = nombre
+        self.contrasena = contrasena
 
-    def aprobar_oferta(self, curso):
-        curso.estado = "aprobado"
-        return f"Curso {curso.nombre} aprobado"
+    def aprobar_curso(self, curso):
+        print(f"Curso {curso} aprobado por {self.nombre}")
 
-    def modificar_curso(self, curso, nuevo_nombre=None, nuevo_cupo=None):
-        if nuevo_nombre:
-            curso.nombre = nuevo_nombre
-        if nuevo_cupo:
-            curso.cupo = nuevo_cupo
-        return f"Curso {curso.codigo} modificado"
+    def modificar_curso(self, curso):
+        print(f"Curso {curso} modificado")
+
+    def generar_reporte(self):
+        print("Generando reporte...")
+
+    def crear_curso(self, curso):
+        print(f"Curso {curso} creado")
+

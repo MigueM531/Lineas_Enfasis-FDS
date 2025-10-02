@@ -1,12 +1,14 @@
 class Docente:
-    def __init__(self, id_docente, nombre):
-        self.id_docente = id_docente
+    def __init__(self, id: int, nombre: str, contrasena: str):
+        self.id = id
         self.nombre = nombre
+        self.contrasena = contrasena
 
-    def registrar_cronograma(self, curso, cronograma):
-        curso.cronograma = cronograma
-        return f"Cronograma registrado en {curso.nombre}"
+    def registrar_notas(self, curso):
+        print(f"Notas registradas en {curso}")
 
-    def ingresar_notas(self, curso, notas):
-        curso.notas = notas
-        return f"Notas ingresadas en {curso.nombre}"
+    def crear_cronograma(self, curso):
+        print(f"Cronograma creado para {curso}")
+
+    def subir_material(self, curso):
+        print(f"Material subido para {curso}")

@@ -1,4 +1,4 @@
-from database import get_connection
+from backend.src.database import get_connection
 
 class EstudianteController:
     def inscribir(self, estudiante, curso, cumple_prerrequisitos, cupo_disponible):

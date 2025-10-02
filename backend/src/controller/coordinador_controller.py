@@ -1,4 +1,5 @@
-from database import get_connection
+from backend.src.database import get_connection
+
 
 class CoordinadorController:
     def aprobar_curso(self, curso):

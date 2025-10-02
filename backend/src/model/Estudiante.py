@@ -1,21 +1,21 @@
 class Estudiante:
-    def __init__(self, id_estudiante, nombre, programa):
-        self.id_estudiante = id_estudiante
+    def __init__(self, id: int, nombre: str, contrasena: str, programa: str, creditos_aprob: int, cursos: list = None):
+        self.id = id
         self.nombre = nombre
+        self.contrasena = contrasena
         self.programa = programa
+        self.creditos_aprob = creditos_aprob
+        self.cursos = cursos if cursos else []
 
     def consultar_cursos(self):
-        pass
+        print("Consultando cursos...")
+        return self.cursos
 
-    def inscribirse(self, curso, cumple_prerrequisitos, cupo_disponible):
-        if not cumple_prerrequisitos:
-            return "No cumple prerrequisitos"
-        if not cupo_disponible:
-            return "Cupo lleno"
-        return "Inscripción exitosa"
+    def inscribirse(self, curso):
+        print(f"{self.nombre} se inscribió en {curso}")
+        self.cursos.append(curso)
 
-    def recibir_notificacion(self, mensaje):
-        return f"Notificación para {self.nombre}: {mensaje}"
-
-    def pedir_reporte(self):
-        return f"Reporte académico solicitado por {self.nombre}"
+    def cancelar_curso(self, curso):
+        if curso in self.cursos:
+            print(f"{self.nombre} canceló el curso {curso}")
+            self.cursos.remove(curso)
