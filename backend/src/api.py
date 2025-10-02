@@ -6,15 +6,30 @@ from datetime import datetime
 import re
 
 # Importar tus controladores existentes
+from controller.inscripcion_controller import InscripcionController
+
+inscripcion_ctrl = InscripcionController()
+
+from model.ChatBot import ChatBot
+
+from controller import inscripcion_controller
 from controller.curso_controller import CursoController
 from controller.estudiante_controller import EstudianteController
 from controller.coordinador_controller import CoordinadorController
 from model.Estudiante import Estudiante
 from model.Coordinador import Coordinador
 
+# Routers normales
+app.include_router(inscripcion_controller.router)
+
+
+# ChatBot
+chatbot = ChatBot()
+
 # Inicializar FastAPI
 app = FastAPI(title="EduBot API", version="1.0.0")
-
+# Rutas
+app.include_router(inscripcion_controller.router)
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
@@ -56,6 +71,11 @@ class CursoAprobar(BaseModel):
 
 
 # ==================== ENDPOINTS ====================
+
+@app.post("/chatbot/")
+def chatbot_endpoint(mensaje: str, estudiante_id: int = 1):
+    return {"respuesta": chatbot.procesar_mensaje(mensaje, estudiante_id)}
+
 
 @app.get("/")
 def read_root():
@@ -183,42 +203,40 @@ def validar_curso(codigo: str, estudiante_id: int):
 def inscribir_estudiante(inscripcion: InscripcionRequest):
     """Inscribe a un estudiante en un curso"""
     try:
-        # Obtener el curso
+        # Buscar curso
         cursos = curso_ctrl.listar_cursos()
         curso = next((c for c in cursos if c.codigo == inscripcion.curso_codigo), None)
 
         if not curso:
             raise HTTPException(status_code=404, detail="Curso no encontrado")
 
-        # Crear objeto estudiante (en producción obtenerlo de la BD)
-        estudiante = Estudiante(
-            inscripcion.estudiante_id,
-            "Estudiante",  # Deberías obtener el nombre real de la BD
-            "Programa"  # Deberías obtener el programa real de la BD
+        # Verificar cupo
+        inscritos = curso_ctrl.contar_inscritos(curso.codigo)
+        if not curso.validar_cupo(inscritos):
+            raise HTTPException(status_code=400, detail="No hay cupos disponibles")
+
+        # Crear inscripción en BD
+        nueva = inscripcion_ctrl.crear_inscripcion(
+            estudiante_id=inscripcion.estudiante_id,
+            curso_id=curso.codigo   # 👈 si decides usar `codigo` en BD
         )
 
-        # Validar cupos
-        inscritos = curso_ctrl.contar_inscritos(curso.codigo)
-        tiene_cupo = curso.validar_cupo(inscritos)
-
-        # Intentar inscripción usando tu lógica existente
-        resultado = estudiante_ctrl.inscribir(estudiante, curso, True, tiene_cupo)
-
-        if "éxito" in resultado.lower() or "inscripción realizada" in resultado.lower():
-            return {
-                "type": "inscripcion",
-                "resultado": resultado,
-                "success": True
-            }
-        else:
-            return {
-                "type": "inscripcion",
-                "resultado": resultado,
-                "success": False
-            }
+        return {
+            "type": "inscripcion",
+            "data": {
+                "id": nueva.id,
+                "estudiante_id": nueva.estudiante_id,
+                "curso_id": nueva.curso_id,
+                "fecha_inscripcion": nueva.fecha_inscripcion,
+                "estado": nueva.estado
+            },
+            "success": True,
+            "mensaje": "Inscripción realizada con éxito"
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 # HU2: Mis inscripciones
@@ -226,17 +244,28 @@ def inscribir_estudiante(inscripcion: InscripcionRequest):
 def obtener_inscripciones(estudiante_id: int):
     """Obtiene todas las inscripciones de un estudiante"""
     try:
-        # Implementar lógica real con tus controladores
-        # Por ahora retorno estructura básica
+        inscripciones = inscripcion_ctrl.listar_inscripciones()
+        inscripciones = [i for i in inscripciones if i.estudiante_id == estudiante_id]
+
+        data = [
+            {
+                "id": i.id,
+                "curso_id": i.curso_id,
+                "fecha_inscripcion": i.fecha_inscripcion,
+                "estado": i.estado
+            }
+            for i in inscripciones
+        ]
+
         return {
             "type": "inscripciones",
-            "data": [],
-            "count": 0,
-            "message": "Consulta tus inscripciones desde la base de datos"
+            "data": data,
+            "count": len(data)
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 # HU7: Reporte de progreso

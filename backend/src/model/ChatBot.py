@@ -1,15 +1,19 @@
+import re
+from controller.inscripcion_controller import InscripcionController
+
 class ChatBot:
-    def __init__(self, nombre="EduBot"):
-        self.nombre = nombre
+    def __init__(self):
+        self.inscripcion_controller = InscripcionController()
 
-    def mostrar_cursos(self, cursos):
-        return [f"{c.codigo} - {c.nombre} ({c.estado})" for c in cursos]
+    def procesar_mensaje(self, mensaje: str, estudiante_id: int = 1):
+        mensaje = mensaje.lower()
 
-    def validar_inscripciones(self, estudiante, curso, cumple_prerrequisitos, cupo_disponible):
-        return estudiante.inscribirse(curso, cumple_prerrequisitos, cupo_disponible)
+        # Detectar intención de inscripción
+        match = re.search(r"(inscribirme|inscribir|registrarme).*(curso\s*(\d+))", mensaje)
+        if match:
+            curso_id = int(match.group(3))
+            inscripcion = self.inscripcion_controller.crear_inscripcion(estudiante_id, curso_id)
+            return f"✅ Te inscribí en el curso {curso_id}. Estado: {inscripcion.estado}"
 
-    def generar_reportes(self, estudiante):
-        return estudiante.pedir_reporte()
-
-    def notificar(self, estudiante, mensaje):
-        return estudiante.recibir_notificacion(mensaje)
+        # Si no reconoce el mensaje
+        return "🤖 No entendí tu mensaje, ¿quieres inscribirte en un curso?"

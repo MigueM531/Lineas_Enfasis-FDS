@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS inscripciones CASCADE;
-DROP TABLE IF EXISTS cursos CASCADE;
 DROP TABLE IF EXISTS estudiantes CASCADE;
+DROP TABLE IF EXISTS cursos CASCADE;
 DROP TABLE IF EXISTS coordinadores CASCADE;
 DROP TABLE IF EXISTS docentes CASCADE;
 DROP TABLE IF EXISTS notificaciones CASCADE;
@@ -44,7 +44,7 @@ CREATE TABLE inscripciones (
     estudiante_id INT REFERENCES estudiantes(id_estudiante) ON DELETE CASCADE,
     curso_id INT REFERENCES cursos(id_curso) ON DELETE CASCADE,
     fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (estudiante_id, curso_id)
+    estado VARCHAR(20) DEFAULT 'pendiente'
 );
 
 CREATE TABLE notificaciones (

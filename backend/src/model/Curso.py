@@ -7,5 +7,6 @@ class Curso:
         self.cronograma = cronograma if cronograma else []
         self.estado = estado
 
-    def validar_cupo(self):
-        return self.cupo > 0
+    def validar_cupo(self, inscritos: int = 0):
+        return self.cupo > inscritos
+
