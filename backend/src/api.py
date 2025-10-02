@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+import re
 
 # Importar tus controladores existentes
 from controller.curso_controller import CursoController
@@ -61,13 +62,26 @@ def read_root():
     return {
         "message": "EduBot API - Sistema de Líneas de Énfasis",
         "status": "active",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "endpoints": {
+            "cursos": "/api/cursos",
+            "crear_curso": "/api/cursos (POST)",
+            "aprobar_curso": "/api/cursos/{codigo}/aprobar (PUT)",
+            "rechazar_curso": "/api/cursos/{codigo}/rechazar (PUT)",
+            "inscripciones": "/api/inscripciones (POST)",
+            "chat": "/chat (POST)"
+        }
     }
 
 
 # HU1 & HU2: Consultar y filtrar cursos
 @app.get("/api/cursos")
 def listar_cursos(semestre: Optional[int] = None, estado: Optional[str] = None):
+    """
+    Lista cursos con filtros opcionales
+    - semestre: filtra por número de semestre
+    - estado: filtra por estado (aprobado, pendiente, rechazado)
+    """
     try:
         cursos = curso_ctrl.listar_cursos()
 
@@ -106,6 +120,7 @@ def listar_cursos(semestre: Optional[int] = None, estado: Optional[str] = None):
 # HU1: Obtener detalle de un curso específico
 @app.get("/api/cursos/{codigo}")
 def obtener_curso(codigo: str):
+    """Obtiene los detalles completos de un curso específico"""
     try:
         cursos = curso_ctrl.listar_cursos()
         curso = next((c for c in cursos if c.codigo == codigo), None)
@@ -133,6 +148,7 @@ def obtener_curso(codigo: str):
 # HU3: Validar cupos y prerequisitos antes de inscripción
 @app.get("/api/cursos/{codigo}/validar")
 def validar_curso(codigo: str, estudiante_id: int):
+    """Valida si un estudiante puede inscribirse en un curso"""
     try:
         cursos = curso_ctrl.listar_cursos()
         curso = next((c for c in cursos if c.codigo == codigo), None)
@@ -165,6 +181,7 @@ def validar_curso(codigo: str, estudiante_id: int):
 # HU5: Inscribirse en un curso
 @app.post("/api/inscripciones")
 def inscribir_estudiante(inscripcion: InscripcionRequest):
+    """Inscribe a un estudiante en un curso"""
     try:
         # Obtener el curso
         cursos = curso_ctrl.listar_cursos()
@@ -207,11 +224,10 @@ def inscribir_estudiante(inscripcion: InscripcionRequest):
 # HU2: Mis inscripciones
 @app.get("/api/estudiante/{estudiante_id}/inscripciones")
 def obtener_inscripciones(estudiante_id: int):
+    """Obtiene todas las inscripciones de un estudiante"""
     try:
-        # Aquí debes implementar la lógica para obtener inscripciones
-        # desde tu base de datos usando tus controladores
-
-        # Por ahora retorno ejemplo
+        # Implementar lógica real con tus controladores
+        # Por ahora retorno estructura básica
         return {
             "type": "inscripciones",
             "data": [],
@@ -226,8 +242,9 @@ def obtener_inscripciones(estudiante_id: int):
 # HU7: Reporte de progreso
 @app.get("/api/estudiante/{estudiante_id}/progreso")
 def obtener_progreso(estudiante_id: int):
+    """Genera reporte de progreso académico de un estudiante"""
     try:
-        # Datos simulados - implementar lógica real con tus controladores
+        # Implementar lógica real con tus controladores
         return {
             "type": "reporte",
             "data": {
@@ -245,6 +262,7 @@ def obtener_progreso(estudiante_id: int):
 # HU9: Crear curso (coordinador)
 @app.post("/api/cursos")
 def crear_curso(curso: CursoCreate):
+    """Crea un nuevo curso en el sistema (requiere rol coordinador)"""
     try:
         nuevo_curso = curso_ctrl.crear_curso(
             curso.codigo,
@@ -273,6 +291,7 @@ def crear_curso(curso: CursoCreate):
 # HU4: Aprobar curso (coordinador)
 @app.put("/api/cursos/{codigo}/aprobar")
 def aprobar_curso(codigo: str, coordinador_id: int = 1):
+    """Aprueba un curso pendiente (requiere rol coordinador)"""
     try:
         # Obtener curso
         cursos = curso_ctrl.listar_cursos()
@@ -280,6 +299,14 @@ def aprobar_curso(codigo: str, coordinador_id: int = 1):
 
         if not curso:
             raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+        # Validar que el curso esté pendiente
+        if curso.estado != "pendiente":
+            return {
+                "type": "error",
+                "mensaje": f"El curso ya tiene estado: {curso.estado}",
+                "codigo": codigo
+            }
 
         # Crear objeto coordinador
         coordinador = Coordinador(coordinador_id, "Dr. Coordinador")
@@ -300,12 +327,21 @@ def aprobar_curso(codigo: str, coordinador_id: int = 1):
 # HU4: Rechazar curso (coordinador)
 @app.put("/api/cursos/{codigo}/rechazar")
 def rechazar_curso(codigo: str, coordinador_id: int = 1):
+    """Rechaza un curso pendiente (requiere rol coordinador)"""
     try:
         cursos = curso_ctrl.listar_cursos()
         curso = next((c for c in cursos if c.codigo == codigo), None)
 
         if not curso:
             raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+        # Validar que el curso esté pendiente
+        if curso.estado != "pendiente":
+            return {
+                "type": "error",
+                "mensaje": f"El curso ya tiene estado: {curso.estado}",
+                "codigo": codigo
+            }
 
         coordinador = Coordinador(coordinador_id, "Dr. Coordinador")
         resultado = coordinador_ctrl.rechazar_curso(curso)
@@ -320,9 +356,100 @@ def rechazar_curso(codigo: str, coordinador_id: int = 1):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# Endpoint principal del chat
+# HU6: Obtener notificaciones (NUEVO)
+@app.get("/api/notificaciones/{usuario_id}")
+def obtener_notificaciones(usuario_id: int):
+    """Obtiene las notificaciones de un usuario"""
+    try:
+        # Simulación de notificaciones - implementar lógica real
+        notificaciones = [
+            {
+                "tipo": "cambio_horario",
+                "curso": "Machine Learning Avanzado",
+                "mensaje": "El horario cambió a Miércoles 6:00-9:00 PM",
+                "fecha": "Hace 2 horas",
+                "leido": False
+            },
+            {
+                "tipo": "cupos",
+                "curso": "Deep Learning Aplicado",
+                "mensaje": "¡Nuevos cupos disponibles!",
+                "fecha": "Hace 1 día",
+                "leido": False
+            }
+        ]
+
+        return {
+            "type": "notificaciones",
+            "data": notificaciones,
+            "count": len(notificaciones)
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# HU8: Generar comprobante (NUEVO)
+@app.post("/api/comprobante/generar")
+def generar_comprobante(inscripcion: InscripcionRequest):
+    """Genera un comprobante de inscripción"""
+    try:
+        import random
+
+        return {
+            "type": "comprobante",
+            "mensaje": "Comprobante generado exitosamente",
+            "data": {
+                "numero_transaccion": f"#{random.randint(100000, 999999)}",
+                "estudiante_id": inscripcion.estudiante_id,
+                "curso_codigo": inscripcion.curso_codigo,
+                "fecha": datetime.now().isoformat(),
+                "estado": "Pagado"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Endpoint de estadísticas para coordinadores (NUEVO)
+@app.get("/api/estadisticas")
+def obtener_estadisticas():
+    """Obtiene estadísticas generales del sistema (coordinadores)"""
+    try:
+        cursos = curso_ctrl.listar_cursos()
+
+        total_cursos = len(cursos)
+        cursos_aprobados = len([c for c in cursos if c.estado == "aprobado"])
+        cursos_pendientes = len([c for c in cursos if c.estado == "pendiente"])
+        cursos_rechazados = len([c for c in cursos if c.estado == "rechazado"])
+
+        # Calcular inscripciones totales
+        total_inscripciones = sum([curso_ctrl.contar_inscritos(c.codigo) for c in cursos])
+
+        return {
+            "type": "estadisticas",
+            "data": {
+                "total_cursos": total_cursos,
+                "cursos_aprobados": cursos_aprobados,
+                "cursos_pendientes": cursos_pendientes,
+                "cursos_rechazados": cursos_rechazados,
+                "total_inscripciones": total_inscripciones,
+                "ocupacion_promedio": "75%"  # Calcular real
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Endpoint principal del chat (MEJORADO)
 @app.post("/chat")
 def chat(message: Message):
+    """
+    Endpoint principal del chatbot
+    Procesa mensajes en lenguaje natural y retorna respuestas apropiadas
+    """
     try:
         text = message.text.lower()
 
@@ -337,8 +464,12 @@ def chat(message: Message):
             codigo = None
             for palabra in palabras:
                 if len(palabra) >= 3:
-                    codigo = palabra.upper()
-                    break
+                    # Buscar código que coincida con patrón de curso
+                    codigo_upper = palabra.upper()
+                    cursos = curso_ctrl.listar_cursos()
+                    if any(c.codigo == codigo_upper for c in cursos):
+                        codigo = codigo_upper
+                        break
 
             if codigo:
                 inscripcion = InscripcionRequest(
@@ -347,7 +478,10 @@ def chat(message: Message):
                 )
                 return inscribir_estudiante(inscripcion)
 
-            return {"type": "error", "message": "Por favor especifica el código del curso"}
+            return {
+                "type": "error",
+                "message": "Por favor especifica el código del curso. Ejemplo: 'inscribirme en IA-501'"
+            }
 
         # Progreso
         elif "reporte" in text or "progreso" in text:
@@ -357,20 +491,44 @@ def chat(message: Message):
         elif "mis inscripc" in text or "inscripciones" in text:
             return obtener_inscripciones(message.estudiante_id)
 
+        # Notificaciones
+        elif "notificacion" in text or "aviso" in text:
+            return obtener_notificaciones(message.estudiante_id)
+
         # Filtrar por semestre
         elif "semestre" in text or "filtrar" in text:
             # Intentar extraer número de semestre
-            import re
             numeros = re.findall(r'\d+', text)
             if numeros:
                 semestre = int(numeros[0])
                 return listar_cursos(semestre=semestre, estado="aprobado")
             return listar_cursos(estado="aprobado")
 
+        # Crear curso (coordinador)
+        elif "crear curso" in text:
+            return {
+                "type": "info",
+                "message": "Para crear un curso, usa el formulario en la interfaz o envía una petición POST a /api/cursos"
+            }
+
+        # Aprobar cursos (coordinador)
+        elif "aprobar" in text or "pendiente" in text:
+            return listar_cursos(estado="pendiente")
+
+        # Estadísticas (coordinador)
+        elif "estadistica" in text or "reporte" in text:
+            return obtener_estadisticas()
+
         # Respuesta por defecto
         return {
             "type": "default",
-            "message": "No entendí tu consulta. Intenta con: 'buscar cursos', 'inscribirme en [CODIGO]', 'mi progreso', o 'mis inscripciones'"
+            "message": "No entendí tu consulta. Intenta con:\n" +
+                       "• 'buscar cursos'\n" +
+                       "• 'inscribirme en [CODIGO]'\n" +
+                       "• 'mi progreso'\n" +
+                       "• 'mis inscripciones'\n" +
+                       "• 'filtrar por semestre [NUMERO]'\n" +
+                       "• 'notificaciones'"
         }
 
     except Exception as e:
@@ -378,6 +536,17 @@ def chat(message: Message):
             "type": "error",
             "message": f"Error procesando mensaje: {str(e)}"
         }
+
+
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    """Verifica el estado de la API"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "version": "1.0.0"
+    }
 
 
 # Ejecutar con: uvicorn api:app --reload

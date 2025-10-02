@@ -550,6 +550,10 @@
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt_ARnx8z8haoyFUSEIDu0OY1VKgfiMf7ung&s" alt="Universidad de Medellín" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 60%22%3E%3Ctext x=%2210%22 y=%2240%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23B71C1C%22%3EUniversidad de Medellín%3C/text%3E%3C/svg%3E';">
         </div>
         <div class="user-status">
+            <select id="userRoleSelector" onchange="cambiarRol()" style="margin-right: 15px; padding: 5px 10px; border-radius: 5px; border: 2px solid white; background: white; color: #B71C1C; font-weight: bold; cursor: pointer;">
+                <option value="estudiante">👨‍🎓 Estudiante</option>
+                <option value="coordinador">👔 Coordinador</option>
+            </select>
             <div class="status-indicator"></div>
             <span id="userName">Cargando...</span>
             <span class="role-badge" id="userRole">Estudiante</span>
