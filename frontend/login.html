@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduBot - Iniciar Sesión</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #B71C1C 0%, #D32F2F 50%, #FF5252 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 1000px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .login-left {
+            background: linear-gradient(135deg, #B71C1C, #D32F2F);
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .login-logo img {
+            width: 80%;
+            height: 80%;
+            object-fit: contain;
+        }
+
+        .login-left h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .login-left p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .login-features {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feature-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .login-right {
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-header {
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            color: #B71C1C;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #757575;
+            font-size: 14px;
+        }
+
+        .role-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .role-option {
+            flex: 1;
+            padding: 20px;
+            border: 2px solid #FFEBEB;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .role-option:hover {
+            border-color: #FF5252;
+            transform: translateY(-2px);
+        }
+
+        .role-option.active {
+            border-color: #D32F2F;
+            background: linear-gradient(135deg, #FFF5F5, #FFEBEB);
+        }
+
+        .role-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .role-name {
+            color: #B71C1C;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #B71C1C;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #FFEBEB;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #FF5252;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #B71C1C;
+            font-size: 18px;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #757575;
+        }
+
+        .remember-me input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #D32F2F;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #D32F2F, #B71C1C);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.error {
+            background-color: #FFCDD2;
+            color: #C62828;
+            border-left: 4px solid #F44336;
+            display: block;
+        }
+
+        .alert.success {
+            background-color: #C8E6C9;
+            color: #2E7D32;
+            border-left: 4px solid #4CAF50;
+            display: block;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+            background: #FFEBEB;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            color: #757575;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .quick-login {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .quick-login-btn {
+            padding: 10px;
+            border: 2px solid #FFEBEB;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            color: #B71C1C;
+            transition: all 0.2s;
+        }
+
+        .quick-login-btn:hover {
+            border-color: #D32F2F;
+            background: #FFF5F5;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+
+            .login-left {
+                padding: 30px;
+                min-height: 300px;
+            }
+
+            .login-right {
+                padding: 30px;
+            }
+
+            .role-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Left Side - Branding -->
+        <div class="login-left">
+            <div class="login-logo">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt_ARnx8z8haoyFUSEIDu0OY1VKgfiMf7ung&s" alt="Universidad">
+            </div>
+            <h1>EduBot</h1>
+            <p>Sistema Inteligente de Gestión de Líneas de Énfasis</p>
+
+            <div class="login-features">
+                <div class="feature-item">
+                    <div class="feature-icon">🤖</div>
+                    <span>Asistente Virtual 24/7</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📚</div>
+                    <span>Gestión de Cursos</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <span>Seguimiento Académico</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔔</div>
+                    <span>Notificaciones Automáticas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <div class="login-header">
+                <h2>Iniciar Sesión</h2>
+                <p>Ingresa tus credenciales para acceder al sistema</p>
+            </div>
+
+            <div id="alertMessage" class="alert"></div>
+
+            <!-- Role Selector -->
+            <div class="role-selector">
+                <div class="role-option active" onclick="selectRole('estudiante')">
+                    <div class="role-icon">👨‍🎓</div>
+                    <div class="role-name">Estudiante</div>
+                </div>
+                <div class="role-option" onclick="selectRole('coordinador')">
+                    <div class="role-icon">👔</div>
+                    <div class="role-name">Coordinador</div>
+                </div>
+                <div class="role-option" onclick="selectRole('docente')">
+                    <div class="role-icon">👨‍🏫</div>
+                    <div class="role-name">Docente</div>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" for="username">Usuario / Código</label>
+                    <input
+                        type="text"
+                        id="username"
+                        class="form-input"
+                        placeholder="Ingresa tu código institucional"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="password-container">
+                        <input
+                            type="password"
+                            id="password"
+                            class="form-input"
+                            placeholder="Ingresa tu contraseña"
+                            required
+                        >
+                        <span class="password-toggle" onclick="togglePassword()">👁️</span>
+                    </div>
+                </div>
+
+                <div class="remember-forgot">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Recordarme</span>
+                    </label>
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="login-button">Iniciar Sesión</button>
+            </form>
+
+            <div class="divider">
+                <span>Acceso Rápido (Demo)</span>
+            </div>
+
+            <div class="quick-login">
+                <button class="quick-login-btn" onclick="quickLogin('estudiante')">
+                    👨‍🎓 Demo Estudiante
+                </button>
+                <button class="quick-login-btn" onclick="quickLogin('coordinador')">
+                    👔 Demo Coordinador
+                </button>
+                <button class="quick-login-btn" onclick="quickLogin('docente')">
+                    👨‍🏫 Demo Docente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let selectedRole = 'estudiante';
+
+        function selectRole(role) {
+            selectedRole = role;
+
+            // Update UI
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.closest('.role-option').classList.add('active');
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.querySelector('.password-toggle');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = '👁️';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+
+            showAlert('Verificando credenciales...', 'success');
+
+            try {
+                // Llamada al backend para autenticación
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password,
+                        role: selectedRole
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    loginSuccess(data);
+                } else {
+                    throw new Error('Credenciales inválidas');
+                }
+            } catch (error) {
+                console.error('Error de autenticación:', error);
+                // Si falla el backend, usar autenticación demo
+                authenticateDemo(username, password);
+            }
+        }
+
+        function authenticateDemo(username, password) {
+            // Usuarios demo para pruebas
+            const demoUsers = {
+                estudiante: {
+                    username: 'EST001',
+                    password: 'estudiante123',
+                    data: {
+                        id: 1,
+                        nombre: 'Ana López García',
+                        codigo: 'EST001',
+                        programa: 'Ingeniería de Sistemas',
+                        rol: 'estudiante',
+                        email: 'ana.lopez@udem.edu.co'
+                    }
+                },
+                coordinador: {
+                    username: 'COORD001',
+                    password: 'coordinador123',
+                    data: {
+                        id: 2,
+                        nombre: 'Dr. Carlos Ramírez',
+                        codigo: 'COORD001',
+                        programa: 'Coordinación Académica',
+                        rol: 'coordinador',
+                        email: 'carlos.ramirez@udem.edu.co'
+                    }
+                },
+                docente: {
+                    username: 'DOC001',
+                    password: 'docente123',
+                    data: {
+                        id: 3,
+                        nombre: 'Dra. María González',
+                        codigo: 'DOC001',
+                        departamento: 'Ciencias Básicas',
+                        rol: 'docente',
+                        email: 'maria.gonzalez@udem.edu.co'
+                    }
+                }
+            };
+
+            const user = demoUsers[selectedRole];
+
+            if (user && (username === user.username || username === 'demo') &&
+                (password === user.password || password === 'demo')) {
+                loginSuccess(user.data);
+            } else {
+                showAlert('Usuario o contraseña incorrectos. Usa "demo" / "demo" o las credenciales específicas.', 'error');
+            }
+        }
+
+        function loginSuccess(userData) {
+            showAlert('¡Inicio de sesión exitoso! Redirigiendo...', 'success');
+
+            // Guardar datos del usuario
+            sessionStorage.setItem('currentUser', JSON.stringify(userData));
+
+            // Redireccionar según el rol
+            setTimeout(() => {
+                switch(userData.rol) {
+                    case 'estudiante':
+                        window.location.href = 'index.html';
+                        break;
+                    case 'coordinador':
+                        window.location.href = 'coordinador.html';
+                        break;
+                    case 'docente':
+                        window.location.href = 'docente.html';
+                        break;
+                    default:
+                        window.location.href = 'index.html';
+                }
+            }, 1000);
+        }
+
+        function quickLogin(role) {
+            selectedRole = role;
+            selectRoleUI(role);
+
+            // Autologin con credenciales demo
+            document.getElementById('username').value = 'demo';
+            document.getElementById('password').value = 'demo';
+
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+
+        function selectRoleUI(role) {
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('active');
+            });
+
+            const roleOptions = document.querySelectorAll('.role-option');
+            if (role === 'estudiante') roleOptions[0].classList.add('active');
+            if (role === 'coordinador') roleOptions[1].classList.add('active');
+            if (role === 'docente') roleOptions[2].classList.add('active');
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.style.display = 'block';
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Verificar si ya hay sesión activa
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (currentUser) {
+                const userData = JSON.parse(currentUser);
+                showAlert('Ya tienes una sesión activa. Redirigiendo...', 'success');
+                setTimeout(() => {
+                    switch(userData.rol) {
+                        case 'estudiante':
+                            window.location.href = 'index.html';
+                            break;
+                        case 'coordinador':
+                            window.location.href = 'coordinador.html';
+                            break;
+                        case 'docente':
+                            window.location.href = 'docente.html';
+                            break;
+                    }
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>
