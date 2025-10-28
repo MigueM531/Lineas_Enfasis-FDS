@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -791,10 +791,10 @@
 
                 <div class="filters-bar">
                     <div class="filter-group">
-                        <input
-                            type="text"
-                            class="form-input"
-                            id="searchStudent"
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="searchStudent" 
                             placeholder="Buscar estudiante por nombre o código..."
                             oninput="searchStudent()"
                         >
@@ -933,14 +933,14 @@
 
         function loadUserInfo() {
             const userData = sessionStorage.getItem('currentUser');
-
+            
             if (!userData) {
                 window.location.href = 'login.html';
                 return;
             }
 
             currentUser = JSON.parse(userData);
-
+            
             if (currentUser.rol !== 'coordinador') {
                 alert('Acceso denegado. Solo coordinadores pueden acceder a este panel.');
                 window.location.href = 'login.html';
@@ -953,1914 +953,518 @@
         function logout() {
             sessionStorage.clear();
             window.location.href = 'login.html';
-        <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduBot - Panel del Coordinador</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEB 100%);
-            min-height: 100vh;
+        // ==================== TABS ====================
+
+        function switchTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Mostrar tab seleccionado
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        /* Header */
-        .header {
-            background-color: #B71C1C;
-            color: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        // ==================== DASHBOARD STATS ====================
 
-        .header-logo {
-            height: 60px;
-            background: rgb(172, 19, 19);
-            padding: 8px 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-        }
+        async function loadDashboardStats() {
+            try {
+                // Simular datos - en producción vendría del backend
+                const stats = {
+                    total: 24,
+                    pendientes: 5,
+                    aprobados: 19,
+                    estudiantes: 156
+                };
 
-        .header-logo img {
-            height: 200%;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .header-title {
-            flex: 1;
-        }
-
-        .header-title h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header-title p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .user-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-        }
-
-        .role-badge {
-            background-color: #D32F2F;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        .logout-btn {
-            background-color: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 6px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: white;
-            color: #B71C1C;
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
-        }
-
-        /* Dashboard Cards */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 5px solid #D32F2F;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #B71C1C;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #757575;
-            font-size: 14px;
-        }
-
-        /* Tabs */
-        .tabs-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .tabs-header {
-            display: flex;
-            background: #FFF5F5;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 15px 20px;
-            border: none;
-            background: transparent;
-            color: #757575;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-button:hover {
-            background: #FFEBEB;
-            color: #B71C1C;
-        }
-
-        .tab-button.active {
-            color: #B71C1C;
-            background: white;
-            border-bottom-color: #D32F2F;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Course Management */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            color: #B71C1C;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
-        }
-
-        .btn-secondary {
-            background: #FFEBEB;
-            color: #B71C1C;
-            border: 2px solid #FFEBEB;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: #FFCDD2;
-            border-color: #FFCDD2;
-        }
-
-        .btn-success {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-success:hover {
-            background: #45a049;
-        }
-
-        .btn-danger {
-            background: #F44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-danger:hover {
-            background: #da190b;
-        }
-
-        /* Course Table */
-        .courses-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .courses-table thead {
-            background: #FFF5F5;
-        }
-
-        .courses-table th {
-            padding: 15px;
-            text-align: left;
-            color: #B71C1C;
-            font-weight: bold;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .courses-table td {
-            padding: 15px;
-            border-bottom: 1px solid #FFEBEB;
-        }
-
-        .courses-table tr:hover {
-            background: #FFF5F5;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-badge.pending {
-            background: #FFE0B2;
-            color: #E65100;
-        }
-
-        .status-badge.approved {
-            background: #C8E6C9;
-            color: #2E7D32;
-        }
-
-        .status-badge.rejected {
-            background: #FFCDD2;
-            color: #C62828;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Forms */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            display: block;
-            color: #B71C1C;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #FFEBEB;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #FF5252;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 3% auto;
-            padding: 0;
-            border-radius: 15px;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            animation: slideDown 0.3s;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+                document.getElementById('totalCursos').textContent = stats.total;
+                document.getElementById('cursosPendientes').textContent = stats.pendientes;
+                document.getElementById('cursosAprobados').textContent = stats.aprobados;
+                document.getElementById('totalEstudiantes').textContent = stats.estudiantes;
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
             }
         }
 
-        .modal-header {
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        // ==================== GESTIÓN DE CURSOS (HU9, HU12) ====================
 
-        .modal-header h3 {
-            font-size: 20px;
-        }
+        async function loadAllCourses() {
+            try {
+                // Simular datos del backend
+                allCourses = [
+                    {
+                        id: 1,
+                        codigo: 'MAT101',
+                        nombre: 'Cálculo Diferencial',
+                        semestre: 1,
+                        cupos: 30,
+                        creditos: 4,
+                        estado: 'aprobado',
+                        descripcion: 'Fundamentos del cálculo diferencial',
+                        prerequisitos: []
+                    },
+                    {
+                        id: 2,
+                        codigo: 'FIS201',
+                        nombre: 'Física Mecánica',
+                        semestre: 2,
+                        cupos: 25,
+                        creditos: 4,
+                        estado: 'aprobado',
+                        descripcion: 'Principios de la física mecánica',
+                        prerequisitos: ['MAT101']
+                    },
+                    {
+                        id: 3,
+                        codigo: 'PRG301',
+                        nombre: 'Programación Avanzada',
+                        semestre: 3,
+                        cupos: 20,
+                        creditos: 3,
+                        estado: 'pendiente',
+                        descripcion: 'Técnicas avanzadas de programación',
+                        prerequisitos: ['MAT101', 'FIS201']
+                    }
+                ];
 
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .modal-body {
-            padding: 30px;
-        }
-
-        .modal-footer {
-            padding: 20px 30px;
-            background: #FFF5F5;
-            border-radius: 0 0 15px 15px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* History Timeline */
-        .history-timeline {
-            position: relative;
-            padding-left: 40px;
-            margin-top: 20px;
-        }
-
-        .history-timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #FFEBEB;
-        }
-
-        .history-item {
-            position: relative;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #FFF5F5;
-            border-radius: 8px;
-            border-left: 3px solid #D32F2F;
-        }
-
-        .history-item::before {
-            content: '';
-            position: absolute;
-            left: -33px;
-            top: 20px;
-            width: 12px;
-            height: 12px;
-            background: #D32F2F;
-            border-radius: 50%;
-            border: 3px solid white;
-        }
-
-        .history-date {
-            color: #757575;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .history-action {
-            color: #B71C1C;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .history-details {
-            color: #424242;
-            font-size: 13px;
-        }
-
-        /* Reports */
-        .report-card {
-            background: white;
-            border: 2px solid #FFEBEB;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .student-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .student-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .student-details h4 {
-            color: #B71C1C;
-            margin-bottom: 5px;
-        }
-
-        .student-details p {
-            color: #757575;
-            font-size: 13px;
-        }
-
-        .progress-section {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        .progress-item {
-            text-align: center;
-            padding: 15px;
-            background: #FFF5F5;
-            border-radius: 8px;
-        }
-
-        .progress-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #D32F2F;
-            margin-bottom: 5px;
-        }
-
-        .progress-label {
-            color: #757575;
-            font-size: 12px;
-        }
-
-        /* Filters */
-        .filters-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        /* Alert */
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert.success {
-            background-color: #C8E6C9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .alert.error {
-            background-color: #FFCDD2;
-            color: #C62828;
-            border-left: 4px solid #F44336;
-        }
-
-        .alert.warning {
-            background-color: #FFE0B2;
-            color: #E65100;
-            border-left: 4px solid #FF9800;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-container {
-                padding: 15px;
-            }
-
-            .dashboard-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .tabs-header {
-                overflow-x: auto;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .progress-section {
-                grid-template-columns: 1fr;
+                renderCoursesTable(allCourses);
+            } catch (error) {
+                console.error('Error cargando cursos:', error);
             }
         }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-logo">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt_ARnx8z8haoyFUSEIDu0OY1VKgfiMf7ung&s" alt="Universidad">
-        </div>
-        <div class="header-title">
-            <h1>Panel del Coordinador</h1>
-            <p>Sistema de Gestión de Líneas de Énfasis</p>
-        </div>
-        <div class="user-status">
-            <div class="status-indicator"></div>
-            <span id="userName">Cargando...</span>
-            <span class="role-badge">Coordinador</span>
-            <button class="logout-btn" onclick="logout()">🚪 Salir</button>
-        </div>
-    </div>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Dashboard Stats -->
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <div class="stat-icon">📚</div>
-                <div class="stat-value" id="totalCursos">0</div>
-                <div class="stat-label">Total de Cursos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-value" id="cursosPendientes">0</div>
-                <div class="stat-label">Pendientes de Aprobar</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-value" id="cursosAprobados">0</div>
-                <div class="stat-label">Cursos Aprobados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👨‍🎓</div>
-                <div class="stat-value" id="totalEstudiantes">0</div>
-                <div class="stat-label">Estudiantes Activos</div>
-            </div>
-        </div>
+        function renderCoursesTable(courses) {
+            const tbody = document.getElementById('coursesTableBody');
+            tbody.innerHTML = '';
 
-        <!-- Tabs Container -->
-        <div class="tabs-container">
-            <div class="tabs-header">
-                <button class="tab-button active" onclick="switchTab('cursos')">
-                    📚 Gestión de Cursos
-                </button>
-                <button class="tab-button" onclick="switchTab('aprobar')">
-                    ✅ Aprobar Cursos
-                </button>
-                <button class="tab-button" onclick="switchTab('docentes')">
-                    👨‍🏫 Asignar Docentes
-                </button>
-                <button class="tab-button" onclick="switchTab('reportes')">
-                    📊 Reportes
-                </button>
-            </div>
+            if (courses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #757575;">No hay cursos disponibles</td></tr>';
+                return;
+            }
 
-            <!-- Tab 1: Gestión de Cursos (HU9) -->
-            <div id="tab-cursos" class="tab-content active">
-                <div class="section-header">
-                    <h2 class="section-title">Gestión de Cursos</h2>
-                    <button class="btn-primary" onclick="openCreateCourseModal()">
-                        ➕ Crear Nuevo Curso
-                    </button>
-                </div>
+            courses.forEach(course => {
+                const statusClass = course.estado === 'aprobado' ? 'approved' : 
+                                  course.estado === 'rechazado' ? 'rejected' : 'pending';
+                
+                const row = `
+                    <tr>
+                        <td><strong>${course.codigo}</strong></td>
+                        <td>${course.nombre}</td>
+                        <td>Semestre ${course.semestre}</td>
+                        <td>${course.cupos}</td>
+                        <td><span class="status-badge ${statusClass}">${course.estado.toUpperCase()}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-secondary" onclick="editCourse(${course.id})">✏️ Editar</button>
+                                <button class="btn-secondary" onclick="viewHistory(${course.id})">📜 Historial</button>
+                                <button class="btn-danger" onclick="deleteCourse(${course.id})">🗑️ Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
 
-                <div class="filters-bar">
-                    <div class="filter-group">
-                        <select class="form-select" id="filterSemestre" onchange="filterCourses()">
-                            <option value="">Todos los semestres</option>
-                            <option value="1">Semestre 1</option>
-                            <option value="2">Semestre 2</option>
-                            <option value="3">Semestre 3</option>
-                            <option value="4">Semestre 4</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <select class="form-select" id="filterEstado" onchange="filterCourses()">
-                            <option value="">Todos los estados</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                        </select>
-                    </div>
-                </div>
+        function filterCourses() {
+            const semestre = document.getElementById('filterSemestre').value;
+            const estado = document.getElementById('filterEstado').value;
 
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Cupos</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="coursesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
+            let filtered = allCourses;
 
-            <!-- Tab 2: Aprobar Cursos (HU4) -->
-            <div id="tab-aprobar" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Cursos Pendientes de Aprobación</h2>
-                </div>
+            if (semestre) {
+                filtered = filtered.filter(c => c.semestre == semestre);
+            }
 
-                <div id="alertAprobacion" class="alert" style="display: none;"></div>
+            if (estado) {
+                filtered = filtered.filter(c => c.estado === estado);
+            }
 
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Cupos</th>
-                            <th>Fecha Creación</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingCoursesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
+            renderCoursesTable(filtered);
+        }
 
-            <!-- Tab 3: Asignar Docentes (HU19) -->
-            <div id="tab-docentes" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Asignar Docentes a Cursos</h2>
-                </div>
+        function openCreateCourseModal() {
+            editingCourseId = null;
+            document.getElementById('modalTitle').textContent = 'Crear Nuevo Curso';
+            document.getElementById('courseForm').reset();
+            document.getElementById('courseModal').style.display = 'block';
+        }
 
-                <div id="alertDocentes" class="alert" style="display: none;"></div>
+        function editCourse(courseId) {
+            editingCourseId = courseId;
+            const course = allCourses.find(c => c.id === courseId);
 
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Docente Asignado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="docentesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
+            if (!course) return;
 
-            <!-- Tab 4: Reportes (HU15) -->
-            <div id="tab-reportes" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Reportes de Progreso por Estudiante</h2>
-                </div>
+            document.getElementById('modalTitle').textContent = 'Editar Curso';
+            document.getElementById('courseCodigo').value = course.codigo;
+            document.getElementById('courseNombre').value = course.nombre;
+            document.getElementById('courseSemestre').value = course.semestre;
+            document.getElementById('courseCupos').value = course.cupos;
+            document.getElementById('courseCreditos').value = course.creditos;
+            document.getElementById('courseDescripcion').value = course.descripcion || '';
+            document.getElementById('coursePrerequisitos').value = course.prerequisitos.join(', ');
 
-                <div class="filters-bar">
-                    <div class="filter-group">
-                        <input
-                            type="text"
-                            class="form-input"
-                            id="searchStudent"
-                            placeholder="Buscar estudiante por nombre o código..."
-                            oninput="searchStudent()"
-                        >
-                    </div>
-                    <div class="filter-group">
-                        <select class="form-select" id="filterPrograma">
-                            <option value="">Todos los programas</option>
-                            <option value="sistemas">Ing. Sistemas</option>
-                            <option value="industrial">Ing. Industrial</option>
-                            <option value="civil">Ing. Civil</option>
-                        </select>
-                    </div>
-                </div>
+            document.getElementById('courseModal').style.display = 'block';
+        }
 
-                <div id="reportesContainer">
-                    <!-- Reportes de estudiantes -->
-                </div>
-            </div>
-        </div>
-    </div>
+        async function saveCourse() {
+            const courseData = {
+                codigo: document.getElementById('courseCodigo').value,
+                nombre: document.getElementById('courseNombre').value,
+                semestre: parseInt(document.getElementById('courseSemestre').value),
+                cupos: parseInt(document.getElementById('courseCupos').value),
+                creditos: parseInt(document.getElementById('courseCreditos').value),
+                descripcion: document.getElementById('courseDescripcion').value,
+                prerequisitos: document.getElementById('coursePrerequisitos').value
+                    .split(',')
+                    .map(p => p.trim())
+                    .filter(p => p)
+            };
 
-    <!-- Modal: Crear/Editar Curso (HU9, HU12) -->
-    <div id="courseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Crear Nuevo Curso</h3>
-                <button class="modal-close" onclick="closeCourseModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="courseForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Código del Curso *</label>
-                            <input type="text" class="form-input" id="courseCodigo" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Semestre *</label>
-                            <select class="form-select" id="courseSemestre" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="1">Semestre 1</option>
-                                <option value="2">Semestre 2</option>
-                                <option value="3">Semestre 3</option>
-                                <option value="4">Semestre 4</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Nombre del Curso *</label>
-                            <input type="text" class="form-input" id="courseNombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Cupos *</label>
-                            <input type="number" class="form-input" id="courseCupos" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Créditos *</label>
-                            <input type="number" class="form-input" id="courseCreditos" min="1" max="6" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Descripción</label>
-                            <textarea class="form-textarea" id="courseDescripcion" rows="3"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Prerrequisitos (separados por coma)</label>
-                            <input type="text" class="form-input" id="coursePrerequisitos" placeholder="Ej: MAT101, FIS201">
+            try {
+                // Simular guardado en backend
+                if (editingCourseId) {
+                    // Actualizar curso existente
+                    const index = allCourses.findIndex(c => c.id === editingCourseId);
+                    allCourses[index] = { ...allCourses[index], ...courseData };
+                    showAlert('alertAprobacion', 'Curso actualizado exitosamente', 'success');
+                } else {
+                    // Crear nuevo curso
+                    const newCourse = {
+                        id: allCourses.length + 1,
+                        ...courseData,
+                        estado: 'pendiente'
+                    };
+                    allCourses.push(newCourse);
+                    showAlert('alertAprobacion', 'Curso creado exitosamente. Pendiente de aprobación.', 'success');
+                }
+
+                closeCourseModal();
+                renderCoursesTable(allCourses);
+                loadDashboardStats();
+                loadPendingCourses();
+            } catch (error) {
+                console.error('Error guardando curso:', error);
+                alert('Error al guardar el curso');
+            }
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').style.display = 'none';
+            editingCourseId = null;
+        }
+
+        function deleteCourse(courseId) {
+            if (confirm('¿Estás seguro de que deseas eliminar este curso?')) {
+                allCourses = allCourses.filter(c => c.id !== courseId);
+                renderCoursesTable(allCourses);
+                loadDashboardStats();
+                showAlert('alertAprobacion', 'Curso eliminado exitosamente', 'success');
+            }
+        }
+
+        // ==================== APROBAR CURSOS (HU4) ====================
+
+        async function loadPendingCourses() {
+            const pendingCourses = allCourses.filter(c => c.estado === 'pendiente');
+            const tbody = document.getElementById('pendingCoursesTableBody');
+            tbody.innerHTML = '';
+
+            if (pendingCourses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px; color: #757575;">No hay cursos pendientes de aprobación</td></tr>';
+                return;
+            }
+
+            pendingCourses.forEach(course => {
+                const row = `
+                    <tr>
+                        <td><strong>${course.codigo}</strong></td>
+                        <td>${course.nombre}</td>
+                        <td>Semestre ${course.semestre}</td>
+                        <td>${course.cupos}</td>
+                        <td>${new Date().toLocaleDateString('es-CO')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-success" onclick="approveCourse(${course.id})">✅ Aprobar</button>
+                                <button class="btn-danger" onclick="rejectCourse(${course.id})">❌ Rechazar</button>
+                                <button class="btn-secondary" onclick="editCourse(${course.id})">✏️ Modificar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function approveCourse(courseId) {
+            if (confirm('¿Estás seguro de aprobar este curso? Estará disponible para inscripciones.')) {
+                const course = allCourses.find(c => c.id === courseId);
+                course.estado = 'aprobado';
+                
+                renderCoursesTable(allCourses);
+                loadPendingCourses();
+                loadDashboardStats();
+                
+                showAlert('alertAprobacion', `Curso ${course.codigo} - ${course.nombre} aprobado exitosamente`, 'success');
+            }
+        }
+
+        function rejectCourse(courseId) {
+            const motivo = prompt('Ingresa el motivo del rechazo:');
+            if (motivo) {
+                const course = allCourses.find(c => c.id === courseId);
+                course.estado = 'rechazado';
+                
+                renderCoursesTable(allCourses);
+                loadPendingCourses();
+                loadDashboardStats();
+                
+                showAlert('alertAprobacion', `Curso ${course.codigo} rechazado. Motivo: ${motivo}`, 'warning');
+            }
+        }
+
+        // ==================== HISTORIAL DE CAMBIOS (HU13) ====================
+
+        function viewHistory(courseId) {
+            const course = allCourses.find(c => c.id === courseId);
+            
+            // Simular historial de cambios
+            const history = [
+                {
+                    fecha: '28/10/2025 10:30',
+                    accion: 'Curso Creado',
+                    detalles: `Curso ${course.codigo} creado por ${currentUser.nombre}`,
+                    usuario: currentUser.nombre
+                },
+                {
+                    fecha: '28/10/2025 11:45',
+                    accion: 'Modificación de Cupos',
+                    detalles: `Cupos modificados de 25 a ${course.cupos}`,
+                    usuario: currentUser.nombre
+                },
+                {
+                    fecha: '28/10/2025 14:20',
+                    accion: 'Estado Actualizado',
+                    detalles: `Estado cambiado a "${course.estado}"`,
+                    usuario: currentUser.nombre
+                }
+            ];
+
+            const historyContent = document.getElementById('historyContent');
+            historyContent.innerHTML = '';
+
+            history.forEach(item => {
+                const historyItem = `
+                    <div class="history-item">
+                        <div class="history-date">📅 ${item.fecha}</div>
+                        <div class="history-action">${item.accion}</div>
+                        <div class="history-details">${item.detalles}</div>
+                        <div class="history-details" style="margin-top: 5px;">
+                            <strong>Usuario:</strong> ${item.usuario}
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeCourseModal()">Cancelar</button>
-                <button class="btn-primary" onclick="saveCourse()">Guardar Curso</button>
-            </div>
-        </div>
-    </div>
+                `;
+                historyContent.innerHTML += historyItem;
+            });
 
-    <!-- Modal: Ver Historial (HU13) -->
-    <div id="historyModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Historial de Cambios</h3>
-                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="historyContent" class="history-timeline">
-                    <!-- Timeline de cambios -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeHistoryModal()">Cerrar</button>
-            </div>
-        </div>
-    </div>
+            document.getElementById('historyModal').style.display = 'block';
+        }
 
-    <!-- Modal: Asignar Docente (HU19) -->
-    <div id="docenteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Asignar Docente</h3>
-                <button class="modal-close" onclick="closeDocenteModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Curso</label>
-                    <input type="text" class="form-input" id="docenteCursoNombre" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Seleccionar Docente *</label>
-                    <select class="form-select" id="docenteSelect" required>
-                        <option value="">Seleccionar...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeDocenteModal()">Cancelar</button>
-                <button class="btn-primary" onclick="saveDocente()">Asignar Docente</button>
-            </div>
-        </div>
-    </div>
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
 
-    <script>
-        const API_URL = 'http://localhost:8000';
-        let currentUser = null;
-        let allCourses = [];
-        let editingCourseId = null;
-        let assigningCourseId = null;
+        // ==================== ASIGNAR DOCENTES (HU19) ====================
 
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            loadUserInfo();
-            loadDashboardStats();
-            loadAllCourses();
-            loadPendingCourses();
-            loadDocentesData();
+        async function loadDocentesData() {
+            const tbody = document.getElementById('docentesTableBody');
+            tbody.innerHTML = '';
+
+            // Simular docentes disponibles
+            const docentes = [
+                { id: 1, nombre: 'Dr. Carlos Pérez', especialidad: 'Matemáticas' },
+                { id: 2, nombre: 'Dra. María González', especialidad: 'Física' },
+                { id: 3, nombre: 'Ing. Juan Martínez', especialidad: 'Programación' },
+                { id: 4, nombre: 'Dra. Laura Sánchez', especialidad: 'Ingeniería' }
+            ];
+
+            // Llenar select de docentes
+            const docenteSelect = document.getElementById('docenteSelect');
+            docenteSelect.innerHTML = '<option value="">Seleccionar...</option>';
+            docentes.forEach(doc => {
+                docenteSelect.innerHTML += `<option value="${doc.id}">${doc.nombre} - ${doc.especialidad}</option>`;
+            });
+
+            // Cargar cursos aprobados
+            const approvedCourses = allCourses.filter(c => c.estado === 'aprobado');
+
+            if (approvedCourses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #757575;">No hay cursos aprobados disponibles</td></tr>';
+                return;
+            }
+
+            approvedCourses.forEach(course => {
+                const docenteAsignado = course.docente || 'Sin asignar';
+                const row = `
+                    <tr>
+                        <td><strong>${course.codigo}</strong></td>
+                        <td>${course.nombre}</td>
+                        <td>Semestre ${course.semestre}</td>
+                        <td>${docenteAsignado}</td>
+                        <td>
+                            <button class="btn-primary" onclick="openDocenteModal(${course.id}, '${course.nombre}')">
+                                👨‍🏫 ${course.docente ? 'Reasignar' : 'Asignar'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function openDocenteModal(courseId, courseName) {
+            assigningCourseId = courseId;
+            document.getElementById('docenteCursoNombre').value = courseName;
+            document.getElementById('docenteModal').style.display = 'block';
+        }
+
+        function closeDocenteModal() {
+            document.getElementById('docenteModal').style.display = 'none';
+            assigningCourseId = null;
+        }
+
+        function saveDocente() {
+            const docenteId = document.getElementById('docenteSelect').value;
+            
+            if (!docenteId) {
+                alert('Por favor selecciona un docente');
+                return;
+            }
+
+            const docenteName = document.getElementById('docenteSelect').selectedOptions[0].text;
+            const course = allCourses.find(c => c.id === assigningCourseId);
+            
+            if (course) {
+                course.docente = docenteName;
+                loadDocentesData();
+                closeDocenteModal();
+                showAlert('alertDocentes', `Docente ${docenteName} asignado exitosamente al curso ${course.codigo}`, 'success');
+            }
+        }
+
+        // ==================== REPORTES DE ESTUDIANTES (HU15) ====================
+
+        async function loadStudentReports() {
+            // Simular datos de estudiantes
+            const students = [
+                {
+                    id: 1,
+                    nombre: 'Ana López García',
+                    codigo: 'EST001',
+                    programa: 'Ingeniería de Sistemas',
+                    creditosCompletados: 48,
+                    creditosTotales: 160,
+                    promedio: 4.2,
+                    cursosPendientes: 28
+                },
+                {
+                    id: 2,
+                    nombre: 'Carlos Ramírez Torres',
+                    codigo: 'EST002',
+                    programa: 'Ingeniería Industrial',
+                    creditosCompletados: 72,
+                    creditosTotales: 160,
+                    promedio: 4.5,
+                    cursosPendientes: 22
+                },
+                {
+                    id: 3,
+                    nombre: 'María Fernández Luna',
+                    codigo: 'EST003',
+                    programa: 'Ingeniería de Sistemas',
+                    creditosCompletados: 96,
+                    creditosTotales: 160,
+                    promedio: 4.8,
+                    cursosPendientes: 16
+                }
+            ];
+
+            const container = document.getElementById('reportesContainer');
+            container.innerHTML = '';
+
+            students.forEach(student => {
+                const porcentaje = Math.round((student.creditosCompletados / student.creditosTotales) * 100);
+                
+                const reportCard = `
+                    <div class="report-card">
+                        <div class="report-header">
+                            <div class="student-info">
+                                <div class="student-avatar">${student.nombre.split(' ').map(n => n[0]).join('')}</div>
+                                <div class="student-details">
+                                    <h4>${student.nombre}</h4>
+                                    <p>${student.codigo} - ${student.programa}</p>
+                                </div>
+                            </div>
+                            <button class="btn-secondary" onclick="exportReport(${student.id})">
+                                📄 Exportar PDF
+                            </button>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-item">
+                                <div class="progress-value">${porcentaje}%</div>
+                                <div class="progress-label">Progreso</div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-value">${student.creditosCompletados}/${student.creditosTotales}</div>
+                                <div class="progress-label">Créditos</div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-value">${student.promedio}</div>
+                                <div class="progress-label">Promedio</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML += reportCard;
+            });
+        }
+
+        function searchStudent() {
+            const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+            // Implementar búsqueda - filtrar estudiantes
             loadStudentReports();
-        });
-
-        function loadUserInfo() {
-            const userData = sessionStorage.getItem('currentUser');
-
-            if (!userData) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            currentUser = JSON.parse(userData);
-
-            if (currentUser.rol !== 'coordinador') {
-                alert('Acceso denegado. Solo coordinadores pueden acceder a este panel.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            document.getElementById('userName').textContent = currentUser.nombre;
         }
 
-        function logout() {
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduBot - Panel del Coordinador</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        function exportReport(studentId) {
+            alert(`Generando reporte PDF para estudiante ID: ${studentId}`);
+            // En producción, esto llamaría al backend para generar el PDF
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEB 100%);
-            min-height: 100vh;
+        // ==================== UTILIDADES ====================
+
+        function showAlert(elementId, message, type) {
+            const alert = document.getElementById(elementId);
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
         }
 
-        /* Header */
-        .header {
-            background-color: #B71C1C;
-            color: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-logo {
-            height: 60px;
-            background: rgb(172, 19, 19);
-            padding: 8px 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-        }
-
-        .header-logo img {
-            height: 200%;
-            width: auto;
-            object-fit: contain;
-        }
-
-        .header-title {
-            flex: 1;
-        }
-
-        .header-title h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header-title p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .user-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            background-color: #4CAF50;
-            border-radius: 50%;
-        }
-
-        .role-badge {
-            background-color: #D32F2F;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-
-        .logout-btn {
-            background-color: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 6px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background-color: white;
-            color: #B71C1C;
-        }
-
-        /* Main Container */
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px;
-        }
-
-        /* Dashboard Cards */
-        .dashboard-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 5px solid #D32F2F;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-        }
-
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #B71C1C;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #757575;
-            font-size: 14px;
-        }
-
-        /* Tabs */
-        .tabs-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .tabs-header {
-            display: flex;
-            background: #FFF5F5;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 15px 20px;
-            border: none;
-            background: transparent;
-            color: #757575;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-button:hover {
-            background: #FFEBEB;
-            color: #B71C1C;
-        }
-
-        .tab-button.active {
-            color: #B71C1C;
-            background: white;
-            border-bottom-color: #D32F2F;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 30px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Course Management */
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .section-title {
-            color: #B71C1C;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
-        }
-
-        .btn-secondary {
-            background: #FFEBEB;
-            color: #B71C1C;
-            border: 2px solid #FFEBEB;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: #FFCDD2;
-            border-color: #FFCDD2;
-        }
-
-        .btn-success {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-success:hover {
-            background: #45a049;
-        }
-
-        .btn-danger {
-            background: #F44336;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-danger:hover {
-            background: #da190b;
-        }
-
-        /* Course Table */
-        .courses-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .courses-table thead {
-            background: #FFF5F5;
-        }
-
-        .courses-table th {
-            padding: 15px;
-            text-align: left;
-            color: #B71C1C;
-            font-weight: bold;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .courses-table td {
-            padding: 15px;
-            border-bottom: 1px solid #FFEBEB;
-        }
-
-        .courses-table tr:hover {
-            background: #FFF5F5;
-        }
-
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-badge.pending {
-            background: #FFE0B2;
-            color: #E65100;
-        }
-
-        .status-badge.approved {
-            background: #C8E6C9;
-            color: #2E7D32;
-        }
-
-        .status-badge.rejected {
-            background: #FFCDD2;
-            color: #C62828;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Forms */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
-        }
-
-        .form-label {
-            display: block;
-            color: #B71C1C;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #FFEBEB;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: #FF5252;
-        }
-
-        .form-textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 3% auto;
-            padding: 0;
-            border-radius: 15px;
-            max-width: 800px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            animation: slideDown 0.3s;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        // Cerrar modals al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
             }
         }
-
-        .modal-header {
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            font-size: 20px;
-        }
-
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .modal-body {
-            padding: 30px;
-        }
-
-        .modal-footer {
-            padding: 20px 30px;
-            background: #FFF5F5;
-            border-radius: 0 0 15px 15px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* History Timeline */
-        .history-timeline {
-            position: relative;
-            padding-left: 40px;
-            margin-top: 20px;
-        }
-
-        .history-timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #FFEBEB;
-        }
-
-        .history-item {
-            position: relative;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #FFF5F5;
-            border-radius: 8px;
-            border-left: 3px solid #D32F2F;
-        }
-
-        .history-item::before {
-            content: '';
-            position: absolute;
-            left: -33px;
-            top: 20px;
-            width: 12px;
-            height: 12px;
-            background: #D32F2F;
-            border-radius: 50%;
-            border: 3px solid white;
-        }
-
-        .history-date {
-            color: #757575;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .history-action {
-            color: #B71C1C;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .history-details {
-            color: #424242;
-            font-size: 13px;
-        }
-
-        /* Reports */
-        .report-card {
-            background: white;
-            border: 2px solid #FFEBEB;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .report-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #FFEBEB;
-        }
-
-        .student-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .student-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #D32F2F, #B71C1C);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-        }
-
-        .student-details h4 {
-            color: #B71C1C;
-            margin-bottom: 5px;
-        }
-
-        .student-details p {
-            color: #757575;
-            font-size: 13px;
-        }
-
-        .progress-section {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        .progress-item {
-            text-align: center;
-            padding: 15px;
-            background: #FFF5F5;
-            border-radius: 8px;
-        }
-
-        .progress-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #D32F2F;
-            margin-bottom: 5px;
-        }
-
-        .progress-label {
-            color: #757575;
-            font-size: 12px;
-        }
-
-        /* Filters */
-        .filters-bar {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        /* Alert */
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .alert.success {
-            background-color: #C8E6C9;
-            color: #2E7D32;
-            border-left: 4px solid #4CAF50;
-        }
-
-        .alert.error {
-            background-color: #FFCDD2;
-            color: #C62828;
-            border-left: 4px solid #F44336;
-        }
-
-        .alert.warning {
-            background-color: #FFE0B2;
-            color: #E65100;
-            border-left: 4px solid #FF9800;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .main-container {
-                padding: 15px;
-            }
-
-            .dashboard-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .tabs-header {
-                overflow-x: auto;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .progress-section {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <div class="header-logo">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt_ARnx8z8haoyFUSEIDu0OY1VKgfiMf7ung&s" alt="Universidad">
-        </div>
-        <div class="header-title">
-            <h1>Panel del Coordinador</h1>
-            <p>Sistema de Gestión de Líneas de Énfasis</p>
-        </div>
-        <div class="user-status">
-            <div class="status-indicator"></div>
-            <span id="userName">Cargando...</span>
-            <span class="role-badge">Coordinador</span>
-            <button class="logout-btn" onclick="logout()">🚪 Salir</button>
-        </div>
-    </div>
-
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Dashboard Stats -->
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <div class="stat-icon">📚</div>
-                <div class="stat-value" id="totalCursos">0</div>
-                <div class="stat-label">Total de Cursos</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">⏳</div>
-                <div class="stat-value" id="cursosPendientes">0</div>
-                <div class="stat-label">Pendientes de Aprobar</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-value" id="cursosAprobados">0</div>
-                <div class="stat-label">Cursos Aprobados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">👨‍🎓</div>
-                <div class="stat-value" id="totalEstudiantes">0</div>
-                <div class="stat-label">Estudiantes Activos</div>
-            </div>
-        </div>
-
-        <!-- Tabs Container -->
-        <div class="tabs-container">
-            <div class="tabs-header">
-                <button class="tab-button active" onclick="switchTab('cursos')">
-                    📚 Gestión de Cursos
-                </button>
-                <button class="tab-button" onclick="switchTab('aprobar')">
-                    ✅ Aprobar Cursos
-                </button>
-                <button class="tab-button" onclick="switchTab('docentes')">
-                    👨‍🏫 Asignar Docentes
-                </button>
-                <button class="tab-button" onclick="switchTab('reportes')">
-                    📊 Reportes
-                </button>
-            </div>
-
-            <!-- Tab 1: Gestión de Cursos (HU9) -->
-            <div id="tab-cursos" class="tab-content active">
-                <div class="section-header">
-                    <h2 class="section-title">Gestión de Cursos</h2>
-                    <button class="btn-primary" onclick="openCreateCourseModal()">
-                        ➕ Crear Nuevo Curso
-                    </button>
-                </div>
-
-                <div class="filters-bar">
-                    <div class="filter-group">
-                        <select class="form-select" id="filterSemestre" onchange="filterCourses()">
-                            <option value="">Todos los semestres</option>
-                            <option value="1">Semestre 1</option>
-                            <option value="2">Semestre 2</option>
-                            <option value="3">Semestre 3</option>
-                            <option value="4">Semestre 4</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <select class="form-select" id="filterEstado" onchange="filterCourses()">
-                            <option value="">Todos los estados</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Cupos</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="coursesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Tab 2: Aprobar Cursos (HU4) -->
-            <div id="tab-aprobar" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Cursos Pendientes de Aprobación</h2>
-                </div>
-
-                <div id="alertAprobacion" class="alert" style="display: none;"></div>
-
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Cupos</th>
-                            <th>Fecha Creación</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pendingCoursesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Tab 3: Asignar Docentes (HU19) -->
-            <div id="tab-docentes" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Asignar Docentes a Cursos</h2>
-                </div>
-
-                <div id="alertDocentes" class="alert" style="display: none;"></div>
-
-                <table class="courses-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Nombre del Curso</th>
-                            <th>Semestre</th>
-                            <th>Docente Asignado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="docentesTableBody">
-                        <!-- Datos dinámicos -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Tab 4: Reportes (HU15) -->
-            <div id="tab-reportes" class="tab-content">
-                <div class="section-header">
-                    <h2 class="section-title">Reportes de Progreso por Estudiante</h2>
-                </div>
-
-                <div class="filters-bar">
-                    <div class="filter-group">
-                        <input
-                            type="text"
-                            class="form-input"
-                            id="searchStudent"
-                            placeholder="Buscar estudiante por nombre o código..."
-                            oninput="searchStudent()"
-                        >
-                    </div>
-                    <div class="filter-group">
-                        <select class="form-select" id="filterPrograma">
-                            <option value="">Todos los programas</option>
-                            <option value="sistemas">Ing. Sistemas</option>
-                            <option value="industrial">Ing. Industrial</option>
-                            <option value="civil">Ing. Civil</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div id="reportesContainer">
-                    <!-- Reportes de estudiantes -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Crear/Editar Curso (HU9, HU12) -->
-    <div id="courseModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Crear Nuevo Curso</h3>
-                <button class="modal-close" onclick="closeCourseModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="courseForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Código del Curso *</label>
-                            <input type="text" class="form-input" id="courseCodigo" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Semestre *</label>
-                            <select class="form-select" id="courseSemestre" required>
-                                <option value="">Seleccionar...</option>
-                                <option value="1">Semestre 1</option>
-                                <option value="2">Semestre 2</option>
-                                <option value="3">Semestre 3</option>
-                                <option value="4">Semestre 4</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Nombre del Curso *</label>
-                            <input type="text" class="form-input" id="courseNombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Número de Cupos *</label>
-                            <input type="number" class="form-input" id="courseCupos" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Créditos *</label>
-                            <input type="number" class="form-input" id="courseCreditos" min="1" max="6" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Descripción</label>
-                            <textarea class="form-textarea" id="courseDescripcion" rows="3"></textarea>
-                        </div>
-                        <div class="form-group full-width">
-                            <label class="form-label">Prerrequisitos (separados por coma)</label>
-                            <input type="text" class="form-input" id="coursePrerequisitos" placeholder="Ej: MAT101, FIS201">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeCourseModal()">Cancelar</button>
-                <button class="btn-primary" onclick="saveCourse()">Guardar Curso</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Ver Historial (HU13) -->
-    <div id="historyModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Historial de Cambios</h3>
-                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="historyContent" class="history-timeline">
-                    <!-- Timeline de cambios -->
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeHistoryModal()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Asignar Docente (HU19) -->
-    <div id="docenteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Asignar Docente</h3>
-                <button class="modal-close" onclick="closeDocenteModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">Curso</label>
-                    <input type="text" class="form-input" id="docenteCursoNombre" readonly>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Seleccionar Docente *</label>
-                    <select class="form-select" id="docenteSelect" required>
-                        <option value="">Seleccionar...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeDocenteModal()">Cancelar</button>
-                <button class="btn-primary" onclick="saveDocente()">Asignar Docente</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const API_URL = 'http://localhost:8000';
-        let currentUser = null;
-        let allCourses = [];
-        let editingCourseId = null;
-        let assigningCourseId = null;
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            loadUserInfo();
-            loadDashboardStats();
-            loadAllCourses();
-            loadPendingCourses();
-            loadDocentesData();
-            loadStudentReports();
-        });
-
-        function loadUserInfo() {
-            const userData = sessionStorage.getItem('currentUser');
-
-            if (!userData) {
-                window.location.href = 'login.html';
-                return;
-            }
-
-            currentUser = JSON.parse(userData);
-
-            if (currentUser.rol !== 'coordinador') {
-                alert('Acceso denegado. Solo coordinadores pueden acceder a este panel.');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            document.getElementById('userName').textContent = currentUser.nombre;
-        }
-
-        function logout() {
-            sessionStorage.clear();
-            window.location.href = 'login.html';
         </script>
